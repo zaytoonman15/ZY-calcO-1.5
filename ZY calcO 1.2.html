@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZY calcO 1.2</title>
+<link rel="icon" type="image/png" href="z25.png">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;transition:background .3s,color .3s,border-color .3s}
+body{min-height:100vh;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at top,#0f766e,#0f172a 60%);padding:15px;overflow-y:auto;position:relative}
+body.light-mode{background:linear-gradient(135deg,#ecfdf5 0%,#f0fdf4 30%,#fef3c7 60%,#fef9c3 100%)}
+body::before,body::after{content:"";position:absolute;width:400px;height:400px;filter:blur(180px);opacity:.2;border-radius:50%;z-index:1}
+body::before{background:#10b981;top:-150px;right:-150px}
+body::after{background:#06b6d4;bottom:-150px;left:-150px}
+body.light-mode::before{background:#34d399;opacity:.35}
+body.light-mode::after{background:#fbbf24;opacity:.3}
+.main-container{display:flex;width:100%;max-width:620px;align-items:flex-start;position:relative;z-index:2}
+.calculator{flex:1;padding:20px;padding-left:70px;padding-right:70px;border-radius:30px;background:rgba(17,24,39,.75);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);box-shadow:0 0 30px rgba(0,0,0,.4);max-height:98vh;overflow-y:auto;min-width:0;width:100%;position:relative}
+body.light-mode .calculator{background:rgba(255,255,255,.95);border:2px solid #34d399;box-shadow:0 20px 60px rgba(16,185,129,.25)}
+/* ============ التبويبات الجانبية ============ */
+.side-tabs-left,.side-tabs-right{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:5}
+.side-tabs-left{left:8px}
+.side-tabs-right{right:8px}
+.side-tabs-left .tab-btn,.side-tabs-right .tab-btn{width:52px;height:52px;border-radius:14px;background:#1e293b;border:2px solid transparent;color:#cbd5e1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .3s;padding:4px;position:relative}
+body.light-mode .side-tabs-left .tab-btn,body.light-mode .side-tabs-right .tab-btn{background:#f1f5f9;color:#64748b;border:2px solid #d1fae5}
+.side-tabs-left .tab-btn:hover,.side-tabs-right .tab-btn:hover{background:#334155;transform:scale(1.08)}
+.side-tabs-left .tab-btn.active,.side-tabs-right .tab-btn.active{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;box-shadow:0 0 15px rgba(59,130,246,.6);transform:scale(1.05)}
+.side-tabs-left .tab-btn.tab-cyan.active,.side-tabs-right .tab-btn.tab-cyan.active{background:linear-gradient(135deg,#06b6d4,#0891b2);box-shadow:0 0 15px rgba(6,182,212,.6)}
+.side-tabs-left .tab-btn.tab-red.active,.side-tabs-right .tab-btn.tab-red.active{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 0 15px rgba(239,68,68,.6)}
+.side-tabs-left .tab-btn.tab-orange.active,.side-tabs-right .tab-btn.tab-orange.active{background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 0 15px rgba(249,115,22,.6)}
+.side-tabs-left .tab-btn.tab-purple.active,.side-tabs-right .tab-btn.tab-purple.active{background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 0 15px rgba(139,92,246,.6)}
+.side-tabs-left .tab-btn.tab-green.active,.side-tabs-right .tab-btn.tab-green.active{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 0 15px rgba(16,185,129,.6)}
+.side-tabs-left .tab-btn.tab-yellow.active,.side-tabs-right .tab-btn.tab-yellow.active{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 0 15px rgba(245,158,11,.6)}
+/* ============ أيقونة الجانب ============ */
+.side-logo{position:fixed;left:20px;top:50%;transform:translateY(-50%);z-index:100;cursor:pointer;transition:all .3s}
+.side-logo img{width:60px;height:60px;object-fit:contain;border-radius:50%;background:rgba(17,24,39,.9);padding:8px;border:2px solid #10b981;box-shadow:0 0 25px rgba(16,185,129,.5);transition:all .4s}
+.side-logo:hover img{transform:scale(1.15) rotate(10deg);box-shadow:0 0 40px rgba(16,185,129,.9);border-color:#34d399}
+body.light-mode .side-logo img{background:rgba(255,255,255,.95);border-color:#10b981;box-shadow:0 0 25px rgba(16,185,129,.4)}
+body.light-mode .side-logo:hover img{box-shadow:0 0 40px rgba(16,185,129,.7);border-color:#34d399}
+/* ============ الهيدر ============ */
+.header-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:15px}
+.header-logo img{width:42px;height:42px;object-fit:contain;border-radius:50%;background:rgba(16,185,129,0.1);padding:5px;transition:transform .3s}
+.header-logo img:hover{transform:scale(1.1) rotate(5deg)}
+body.light-mode .header-logo img{background:rgba(16,185,129,0.15)}
+.header-logo h2{margin:0!important}
+/* ============ باقي التصميم ============ */
+.sidebar-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:1000;opacity:0;visibility:hidden;transition:all .3s}
+.sidebar-overlay.active{opacity:1;visibility:visible}
+.history-sidebar{position:fixed;top:0;left:0;bottom:0;width:420px;max-width:92vw;background:rgba(17,24,39,.95);backdrop-filter:blur(20px);border-left:1px solid rgba(255,255,255,.1);padding:25px 20px;z-index:1001;transform:translateX(-110%);transition:transform .4s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;box-shadow:4px 0 40px rgba(0,0,0,.5)}
+body.light-mode .history-sidebar{background:linear-gradient(180deg,#f0fdf4,#ecfdf5);border-left:1px solid rgba(16,185,129,.15)}
+.history-sidebar.open{transform:translateX(0)}
+.history-sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,.1)}
+body.light-mode .history-sidebar-header{border-bottom:2px solid rgba(16,185,129,.2)}
+.history-sidebar-header h3{color:#fff;margin:0;font-size:1.3rem}
+body.light-mode .history-sidebar-header h3{color:#065f46}
+.close-sidebar-btn{background:none;border:none;color:#94a3b8;font-size:1.8rem;cursor:pointer;padding:0 8px;transition:all .3s}
+body.light-mode .close-sidebar-btn{color:#10b981}
+.close-sidebar-btn:hover{color:#ef4444;transform:rotate(90deg)}
+.history-list-sidebar{flex:1;overflow-y:auto;list-style:none;font-size:.95rem;color:#cbd5e1;text-align:right;padding:0}
+body.light-mode .history-list-sidebar{color:#475569}
+.history-item-sidebar{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);border-radius:10px;margin-bottom:6px;background:rgba(255,255,255,.03);transition:all .2s}
+body.light-mode .history-item-sidebar{background:#fff;box-shadow:0 2px 8px rgba(16,185,129,.12);border:2px solid #d1fae5}
+.history-item-sidebar:hover{background:rgba(255,255,255,.08)}
+.history-item-sidebar .history-time{font-size:.7rem;color:#64748b;margin-bottom:4px}
+.history-item-sidebar .history-expr{font-weight:bold;color:#6ee7b7;margin-bottom:4px;word-break:break-all;padding:4px;border-radius:6px;outline:none}
+.history-item-sidebar .history-expr:focus{background:rgba(16,185,129,.2);box-shadow:0 0 0 2px #10b981}
+body.light-mode .history-item-sidebar .history-expr{color:#065f46;font-weight:700}
+body.light-mode .history-item-sidebar .history-expr:focus{background:#d1fae5;box-shadow:0 0 0 2px #10b981}
+.history-item-sidebar .history-note{font-size:.8rem;color:#fbbf24;font-style:italic;margin-top:4px;padding-top:4px;border-top:1px dashed rgba(255,255,255,.1)}
+.history-item-actions{display:flex;gap:5px;margin-top:6px}
+.history-item-actions button{flex:1;padding:4px 8px;border:none;border-radius:6px;font-size:.75rem;cursor:pointer;height:auto}
+.history-item-actions .use-btn{background:#10b981;color:#fff}
+.history-item-actions .note-btn{background:#f59e0b;color:#fff}
+.history-item-actions .delete-btn{background:#ef4444;color:#fff}
+.clear-history-btn{width:100%;padding:12px;border:none;border-radius:12px;background:#ef4444;color:#fff;cursor:pointer;font-weight:bold;margin-top:10px}
+.export-history-btn{width:100%;padding:12px;border:none;border-radius:12px;background:#10b981;color:#fff;cursor:pointer;font-weight:bold;margin-top:10px}
+.history-toggle-btn{background:rgba(30,41,59,.8);color:#fff;border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:12px;cursor:pointer;font-size:.95rem;display:flex;align-items:center;gap:8px}
+body.light-mode .history-toggle-btn{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;border:none;box-shadow:0 3px 10px rgba(16,185,129,.3)}
+.badge{background:#10b981;color:#fff;border-radius:50%;padding:2px 8px;font-size:.7rem;margin-right:5px}
+.top-bar{display:flex;gap:10px;margin-bottom:15px;align-items:center;flex-wrap:wrap}
+select,input[type="number"],input[type="date"],input[type="text"]{flex:1;padding:12px;border:none;border-radius:12px;background:#1e293b;color:#fff;font-size:.95rem;width:100%;min-width:80px}
+body.light-mode select,body.light-mode input{background:#fff;color:#065f46;border:2px solid #a7f3d0;font-weight:600}
+.theme-btn,.fullscreen-btn,.sound-btn,.num-btn{background:#1e293b;color:#fff;border:none;padding:0 15px;border-radius:12px;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;height:48px;min-width:48px}
+body.light-mode .theme-btn,body.light-mode .fullscreen-btn,body.light-mode .sound-btn,body.light-mode .num-btn{background:linear-gradient(135deg,#34d399,#10b981);color:#fff;border:none;box-shadow:0 3px 10px rgba(16,185,129,.4)}
+.sound-btn.muted{background:#ef4444;color:#fff !important}
+.spin{display:inline-block;animation:spin .5s ease-in-out}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+h2,h3{color:#fff;text-align:center;margin-bottom:15px}
+body.light-mode h2{color:#065f46;font-weight:700}
+body.light-mode h3{color:#047857;font-weight:700}
+.screen{width:100%;height:80px;border:none;border-radius:18px;background:#0f172a;color:#fff;font-size:2rem;padding:10px;margin-bottom:15px;text-align:left}
+body.light-mode .screen{background:linear-gradient(135deg,#f0fdf4,#ecfdf5);color:#065f46;border:2px solid #34d399;box-shadow:inset 0 2px 8px rgba(16,185,129,.15)}
+.action-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.copy-result-btn,.tools-toggle-btn{padding:14px 10px;border:none;border-radius:12px;cursor:pointer;font-weight:bold;font-size:.8rem;color:#fff;line-height:1.3;height:auto;min-height:50px;display:flex;align-items:center;justify-content:center;text-align:center}
+.copy-result-btn{background:#06b6d4}
+.copy-result-btn.copied{background:#22c55e}
+.tools-toggle-btn{background:#7c3aed}
+.tools-toggle-btn.active{background:#a855f7}
+.rating-btn{background:linear-gradient(135deg,#ec4899,#db2777) !important;box-shadow:0 3px 12px rgba(236,72,153,.5) !important}
+.rating-btn:hover{background:linear-gradient(135deg,#f472b6,#ec4899) !important;transform:translateY(-2px) !important;box-shadow:0 5px 18px rgba(236,72,153,.7) !important}
+.share-btn{background:linear-gradient(135deg,#10b981,#059669) !important}
+.share-btn:hover{background:linear-gradient(135deg,#34d399,#10b981) !important;transform:translateY(-2px) !important}
+.buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+button{height:55px;border:none;border-radius:14px;font-size:1.2rem;color:#fff;background:#1e293b;cursor:pointer}
+body.light-mode button{background:#e2e8f0;color:#1e293b}
+button:active{transform:scale(.96)}
+.operator{background:#f97316;color:#fff !important}
+.equal{background:#10b981;grid-column:span 2;color:#fff !important}
+.clear{background:#ef4444;color:#fff !important}
+.zero{grid-column:span 2}
+.sci-btn{color:#fff !important;font-size:.85rem;font-weight:700;padding:8px 4px;height:45px}
+.sci-btn:nth-child(1){background:linear-gradient(135deg,#06b6d4,#0891b2);box-shadow:0 3px 8px rgba(6,182,212,.4)}
+.sci-btn:nth-child(2){background:linear-gradient(135deg,#06b6d4,#0891b2);box-shadow:0 3px 8px rgba(6,182,212,.4)}
+.sci-btn:nth-child(3){background:linear-gradient(135deg,#06b6d4,#0891b2);box-shadow:0 3px 8px rgba(6,182,212,.4)}
+.sci-btn:nth-child(4){background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 3px 8px rgba(249,115,22,.4)}
+.sci-btn:nth-child(5){background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 3px 8px rgba(16,185,129,.4)}
+.sci-btn:nth-child(6){background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 3px 8px rgba(139,92,246,.4)}
+.sci-btn:nth-child(7){background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 3px 8px rgba(139,92,246,.4)}
+.sci-btn:nth-child(8){background:linear-gradient(135deg,#ec4899,#db2777);box-shadow:0 3px 8px rgba(236,72,153,.4)}
+.sci-btn:nth-child(9){background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 3px 8px rgba(245,158,11,.4)}
+.sci-btn:nth-child(10){background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 3px 8px rgba(239,68,68,.4)}
+.sci-btn:nth-child(11){background:linear-gradient(135deg,#06b6d4,#0891b2);box-shadow:0 3px 8px rgba(6,182,212,.4)}
+.sci-btn:nth-child(12){background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 3px 8px rgba(16,185,129,.4)}
+.sci-btn:nth-child(13){background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 3px 8px rgba(139,92,246,.4)}
+.sci-btn:nth-child(14){background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 3px 8px rgba(249,115,22,.4)}
+.sci-btn:nth-child(15){background:linear-gradient(135deg,#ec4899,#db2777);box-shadow:0 3px 8px rgba(236,72,153,.4)}
+.sci-btn:nth-child(16){background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 3px 8px rgba(245,158,11,.4)}
+.sci-btn:nth-child(17){background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 3px 8px rgba(239,68,68,.4)}
+.sci-btn:nth-child(18){background:linear-gradient(135deg,#06b6d4,#0891b2);box-shadow:0 3px 8px rgba(6,182,212,.4)}
+.sci-close{background:linear-gradient(135deg,#64748b,#475569);color:#fff !important;font-size:.85rem;height:45px}
+body.light-mode .buttons button:not(.operator):not(.equal):not(.clear):not(.sci-btn):not(.sci-close){background:linear-gradient(135deg,#fff,#f0fdf4);color:#065f46;border:2px solid #a7f3d0;font-weight:700;box-shadow:0 2px 6px rgba(16,185,129,.15)}
+body.light-mode .operator{background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff !important;box-shadow:0 3px 10px rgba(249,115,22,.4)}
+body.light-mode .equal{background:linear-gradient(135deg,#34d399,#059669);color:#fff !important;box-shadow:0 3px 10px rgba(16,185,129,.4)}
+body.light-mode .clear{background:linear-gradient(135deg,#f87171,#dc2626);color:#fff !important;box-shadow:0 3px 10px rgba(239,68,68,.4)}
+.box-section{margin-top:20px;padding:15px;border-radius:18px;background:#0f172a}
+body.light-mode .box-section{background:linear-gradient(135deg,#fff,#f0fdf4);border:2px solid #a7f3d0;box-shadow:0 4px 16px rgba(16,185,129,.12)}
+.result{text-align:center;margin-top:10px;font-weight:bold;font-size:1.1rem;min-height:25px;padding:10px;border-radius:10px}
+#currencyResult{color:#06b6d4;background:rgba(6,182,212,.1)}
+#healthResult{color:#ef4444;background:rgba(239,68,68,.1)}
+#tempResult{color:#f97316;background:rgba(249,115,22,.1)}
+#ageResult{color:#8b5cf6;background:rgba(139,92,246,.1)}
+#percentResult{color:#10b981;background:rgba(16,185,129,.1)}
+#percentChangeResult{color:#10b981;background:rgba(16,185,129,.1)}
+#discountResult{color:#8b5cf6;background:rgba(139,92,246,.1)}
+#speedResult{color:#ef4444;background:rgba(239,68,68,.1)}
+#energyResult{color:#f97316;background:rgba(249,115,22,.1)}
+#dailyCalResult{color:#10b981;background:rgba(16,185,129,.1)}
+#dataResult{color:#10b981;background:rgba(16,185,129,.1)}
+#fuelResult{color:#f59e0b;background:rgba(245,158,11,.1)}
+body.light-mode .result{font-weight:800}
+.btn-action{width:100%;background:#10b981;padding:12px;border-radius:12px;color:#fff;border:none;cursor:pointer;font-weight:bold;margin-top:10px}
+body.light-mode .btn-action{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 3px 10px rgba(16,185,129,.4)}
+.bmi-graph{width:100%;height:30px;background:linear-gradient(to right,#3b82f6,#22c55e,#facc15,#ef4444);border-radius:15px;margin-top:10px;position:relative;overflow:hidden}
+.bmi-indicator{position:absolute;top:-8px;width:6px;height:46px;background:#fff;border-radius:3px;box-shadow:0 0 15px rgba(255,255,255,.8);transition:left .5s ease}
+.bmi-labels{display:flex;justify-content:space-between;font-size:.6rem;color:#94a3b8;margin-top:5px}
+.timer-display{font-size:2.5rem;text-align:center;color:#22c55e;font-weight:bold;padding:10px;font-family:monospace}
+.timer-buttons{display:flex;gap:10px;margin-top:10px}
+.timer-buttons button{flex:1;height:45px;font-size:1rem}
+.percent-inputs{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.percent-inputs input{flex:1;min-width:80px}
+.note-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;justify-content:center;align-items:center;z-index:2000;padding:20px}
+.note-modal.active{display:flex}
+.note-modal-content{background:#1e293b;padding:25px;border-radius:20px;width:100%;max-width:400px;border:1px solid rgba(255,255,255,.1)}
+body.light-mode .note-modal-content{background:linear-gradient(135deg,#fff,#f0fdf4);border:2px solid #34d399}
+.note-modal-content textarea{width:100%;padding:12px;border-radius:12px;border:none;background:#0f172a;color:#fff;font-family:'Cairo',sans-serif;font-size:.95rem;resize:vertical;min-height:80px;margin-bottom:12px}
+.note-modal-buttons{display:flex;gap:10px}
+.note-modal-buttons button{flex:1;height:45px;font-size:1rem;border-radius:12px}
+.sound-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(30,41,59,.95);color:#fff;padding:12px 24px;border-radius:12px;font-weight:bold;z-index:9999;opacity:0;transition:all .4s ease;pointer-events:none}
+.sound-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@media (max-width:768px){
+    .history-sidebar{width:100%;max-width:100%}
+    .calculator{padding-left:20px;padding-right:20px}
+    .buttons{grid-template-columns:repeat(4,1fr);gap:6px}
+    button{height:48px;font-size:1rem}
+    .theme-btn,.fullscreen-btn,.sound-btn,.num-btn{height:44px;min-width:44px;padding:0 12px}
+    .action-row{grid-template-columns:repeat(2,1fr);gap:6px}
+    .copy-result-btn,.tools-toggle-btn{font-size:.75rem;padding:12px 6px;min-height:48px}
+    .side-tabs-left,.side-tabs-right{position:fixed;top:auto;bottom:10px;transform:none;flex-direction:row;overflow-x:auto;max-width:45%;padding:5px;background:rgba(17,24,39,.95);border-radius:15px}
+    .side-tabs-left{left:5px}
+    .side-tabs-right{right:5px}
+    .side-tabs-left .tab-btn,.side-tabs-right .tab-btn{width:44px;height:44px;font-size:.85rem}
+    .side-logo{left:8px;top:auto;bottom:80px;transform:none}
+    .side-logo img{width:45px;height:45px;padding:5px}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== أيقونة الجانب ==================== -->
+<div class="side-logo" onclick="sideLogoClick()" title="Zaytoon O">
+    <img src="z25.png" alt="Zaytoon O">
+</div>
+
+<div class="main-container">
+<div class="calculator" id="calculator">
+
+<!-- التبويبات اليمنى -->
+<div class="side-tabs-right">
+    <button class="tab-btn tab-cyan active" onclick="switchTab('currency', event)" title="العملات">💱</button>
+    <button class="tab-btn tab-red" onclick="switchTab('health', event)" title="الصحة">⚖️</button>
+    <button class="tab-btn tab-orange" onclick="switchTab('temp', event)" title="الحرارة">🌡️</button>
+    <button class="tab-btn tab-purple" onclick="switchTab('age', event)" title="العمر">📅</button>
+    <button class="tab-btn tab-green" onclick="switchTab('percent', event)" title="نسبة">%</button>
+    <button class="tab-btn tab-yellow" onclick="switchTab('timer', event)" title="مؤقت">⏱️</button>
+</div>
+
+<!-- التبويبات اليسرى -->
+<div class="side-tabs-left">
+    <button class="tab-btn tab-purple" onclick="switchTab('discount', event)" title="خصم">🏷️</button>
+    <button class="tab-btn tab-red" onclick="switchTab('speed', event)" title="سرعة">🚗</button>
+    <button class="tab-btn tab-orange" onclick="switchTab('energy', event)" title="سعرات">🔥</button>
+    <button class="tab-btn tab-green" onclick="switchTab('data', event)" title="بيانات">💾</button>
+    <button class="tab-btn tab-yellow" onclick="switchTab('fuel', event)" title="وقود">⛽</button>
+</div>
+
+<!-- الهيدر -->
+<div class="header-logo">
+    <img src="z25.png" alt="Zaytoon O">
+    <h2 id="title">ZY calcO 1.2</h2>
+</div>
+
+<!-- شريط الأدوات العلوي -->
+<div class="top-bar">
+<select id="language" onchange="changeLanguage()">
+<option value="ar">العربية</option>
+<option value="en">English</option>
+<option value="es">Español</option>
+<option value="fr">Français</option>
+<option value="el">Ελληνικά</option>
+<option value="tr">Türkçe</option>
+<option value="ku">Kurdî</option>
+</select>
+<button class="history-toggle-btn" onclick="toggleSidebar()">📋 <span id="historyToggleText">السجل</span> <span class="badge" id="historyBadge">0</span></button>
+<button class="sound-btn" id="soundToggle" onclick="toggleSound()"><span id="soundIcon">🔊</span></button>
+<button class="num-btn" id="numToggle" onclick="toggleNumSystem()" title="نظام الأرقام">🔢</button>
+<button class="fullscreen-btn" onclick="toggleFullscreen()">⛶</button>
+<button class="theme-btn" id="themeToggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+</div>
+
+<!-- الشاشة -->
+<input id="screen" class="screen" disabled placeholder="0">
+
+<!-- صف الأزرار -->
+<div class="action-row">
+<button class="copy-result-btn" onclick="copyResult()" id="copyResultBtn">📋 نسخ</button>
+<button class="tools-toggle-btn" onclick="toggleScientific()" id="toolsToggleBtn">🧰 الأدوات</button>
+<button class="tools-toggle-btn" onclick="clearScreen()" style="background:#ef4444;">🗑️ مسح</button>
+<button class="tools-toggle-btn rating-btn" onclick="openRatingForm()" id="ratingBtn">⭐ قيّم التطبيق</button>
+<button class="tools-toggle-btn share-btn" onclick="shareApp()" id="shareBtn">📤 شارك</button>
+</div>
+
+<!-- الأزرار العلمية -->
+<div class="buttons" id="sciButtons" style="margin-bottom:10px;display:none">
+<button class="sci-btn" onclick="appendValue('sin(')">sin(</button>
+<button class="sci-btn" onclick="appendValue('cos(')">cos(</button>
+<button class="sci-btn" onclick="appendValue('tan(')">tan(</button>
+<button class="sci-btn" onclick="appendValue('log(')">log(</button>
+<button class="sci-btn" onclick="appendValue('sqrt(')">√(</button>
+<button class="sci-btn" onclick="appendValue('**2')">x²</button>
+<button class="sci-btn" onclick="appendValue('**3')">x³</button>
+<button class="sci-btn" onclick="appendValue('PI')">π</button>
+<button class="sci-close" onclick="appendValue(')')"> )</button>
+<button class="sci-btn" onclick="appendValue('abs(')">abs(</button>
+<button class="sci-btn" onclick="appendValue('exp(')">exp(</button>
+<button class="sci-btn" onclick="appendValue('ln(')">ln(</button>
+<button class="sci-btn" onclick="appendValue('E')">E</button>
+<button class="sci-btn" onclick="appendValue('!')">n!</button>
+<button class="sci-btn" onclick="appendValue('round(')">round(</button>
+<button class="sci-btn" onclick="appendValue('floor(')">floor(</button>
+<button class="sci-btn" onclick="appendValue('ceil(')">ceil(</button>
+<button class="sci-btn" onclick="appendValue('1/')">1/x</button>
+</div>
+
+<!-- لوحة الأرقام -->
+<div class="buttons">
+<button class="clear" onclick="appendValue('C')">C</button>
+<button class="operator" onclick="appendValue('%')">%</button>
+<button class="operator" onclick="appendValue('/')">÷</button>
+<button class="operator" onclick="appendValue('*')">×</button>
+<button onclick="appendValue('7')" data-num="7">7</button>
+<button onclick="appendValue('8')" data-num="8">8</button>
+<button onclick="appendValue('9')" data-num="9">9</button>
+<button class="operator" onclick="appendValue('-')">-</button>
+<button onclick="appendValue('4')" data-num="4">4</button>
+<button onclick="appendValue('5')" data-num="5">5</button>
+<button onclick="appendValue('6')" data-num="6">6</button>
+<button class="operator" onclick="appendValue('+')">+</button>
+<button onclick="appendValue('1')" data-num="1">1</button>
+<button onclick="appendValue('2')" data-num="2">2</button>
+<button onclick="appendValue('3')" data-num="3">3</button>
+<button class="operator" onclick="appendValue('.')">.</button>
+<button class="zero" onclick="appendValue('0')" data-num="0">0</button>
+<button class="equal" onclick="calculate()">=</button>
+</div>
+
+<!-- الأقسام -->
+<div class="box-section">
+
+<!-- قسم العملات -->
+<div id="currencyPanel">
+<h3 id="currencyTitle">تحويل العملات (مباشر)</h3>
+<div id="currentRates" style="text-align:center;margin:10px 0;padding:12px;background:rgba(16,185,129,.15);border-radius:10px;font-size:.85rem;border:1px solid rgba(16,185,129,.3);">
+<div style="color:#fbbf24;margin-bottom:5px;" id="officialRateDisplay">🏛️ الرسمي: جاري التحميل...</div>
+<div style="color:#22c55e;" id="marketRateDisplay">🏪 السوق: جاري التحميل...</div>
+</div>
+<input type="number" id="amount" data-placeholder="amountPh" value="1">
+<div class="top-bar" style="margin-top:10px;">
+<select id="fromCurrency" data-i18n-select="currency">
+<option value="USD">🇺🇸 USD - دولار أمريكي</option>
+<option value="EUR">🇪🇺 EUR - يورو</option>
+<option value="GBP">🇬🇧 GBP - جنيه إسترليني</option>
+<option value="JPY">🇯🇵 JPY - ين ياباني</option>
+<option value="TRY">🇹🇷 TRY - ليرة تركية</option>
+<option value="SAR">🇸🇦 SAR - ريال سعودي</option>
+<option value="AED">🇦🇪 AED - درهم إماراتي</option>
+<option value="KWD">🇰🇼 KWD - دينار كويتي</option>
+<option value="QAR">🇶🇦 QAR - ريال قطري</option>
+<option value="IQD" selected>🇮🇶 IQD - دينار عراقي</option>
+<option value="EGP">🇪🇬 EGP - جنيه مصري</option>
+<option value="JOD">🇯🇴 JOD - دينار أردني</option>
+<option value="BHD">🇧🇭 BHD - دينار بحريني</option>
+<option value="OMR">🇴🇲 OMR - ريال عماني</option>
+<option value="MAD">🇲🇦 MAD - درهم مغربي</option>
+<option value="DZD">🇩🇿 DZD - دينار جزائري</option>
+<option value="TND">🇹🇳 TND - دينار تونسي</option>
+<option value="LYD">🇱🇾 LYD - دينار ليبي</option>
+<option value="SDG">🇸🇩 SDG - جنيه سوداني</option>
+<option value="SYP">🇸🇾 SYP - ليرة سورية</option>
+<option value="LBP">🇱🇧 LBP - ليرة لبنانية</option>
+</select>
+<select id="toCurrency" data-i18n-select="currency">
+<option value="USD" selected>🇺🇸 USD - دولار أمريكي</option>
+<option value="EUR">🇪🇺 EUR - يورو</option>
+<option value="GBP">🇬🇧 GBP - جنيه إسترليني</option>
+<option value="JPY">🇯🇵 JPY - ين ياباني</option>
+<option value="TRY">🇹🇷 TRY - ليرة تركية</option>
+<option value="SAR">🇸🇦 SAR - ريال سعودي</option>
+<option value="AED">🇦🇪 AED - درهم إماراتي</option>
+<option value="KWD">🇰🇼 KWD - دينار كويتي</option>
+<option value="QAR">🇶🇦 QAR - ريال قطري</option>
+<option value="IQD">🇮🇶 IQD - دينار عراقي</option>
+<option value="EGP">🇪🇬 EGP - جنيه مصري</option>
+<option value="JOD">🇯🇴 JOD - دينار أردني</option>
+<option value="BHD">🇧🇭 BHD - دينار بحريني</option>
+<option value="OMR">🇴🇲 OMR - ريال عماني</option>
+<option value="MAD">🇲🇦 MAD - درهم مغربي</option>
+<option value="DZD">🇩🇿 DZD - دينار جزائري</option>
+<option value="TND">🇹🇳 TND - دينار تونسي</option>
+<option value="LYD">🇱🇾 LYD - دينار ليبي</option>
+<option value="SDG">🇸🇩 SDG - جنيه سوداني</option>
+<option value="SYP">🇸🇾 SYP - ليرة سورية</option>
+<option value="LBP">🇱🇧 LBP - ليرة لبنانية</option>
+</select>
+</div>
+<button class="btn-action" onclick="convertCurrency()" id="btnConvert">تحويل</button>
+<div class="result" id="currencyResult"></div>
+</div>
+
+<!-- قسم الصحة -->
+<div id="healthPanel" style="display:none;">
+<h3 id="healthTitle">حاسبة الصحة (BMI + العمر)</h3>
+<input type="number" id="weight" data-placeholder="weightPh">
+<input type="number" id="height" data-placeholder="heightPh" style="margin-top:10px;">
+<input type="number" id="healthAge" data-placeholder="healthAgePh" style="margin-top:10px;">
+<button class="btn-action" onclick="calculateHealth()" id="btnHealth">احسب مؤشر الصحة</button>
+<div class="result" id="healthResult"></div>
+<div class="result" id="healthAgeResult" style="color:#fbbf24;"></div>
+<div class="result" id="healthIdeal" style="color:#22c55e;"></div>
+<div id="bmiGraphContainer" style="display:none;margin-top:15px;">
+<div class="bmi-graph"><div class="bmi-indicator" id="bmiIndicator" style="left:50%;"></div></div>
+<div class="bmi-labels"><span id="bmiLabel1">نقص وزن</span><span id="bmiLabel2">مثالي</span><span id="bmiLabel3">زيادة</span><span id="bmiLabel4">سمنة</span></div>
+</div>
+</div>
+
+<!-- قسم الحرارة -->
+<div id="tempPanel" style="display:none;">
+<h3 id="tempTitle">محول درجات الحرارة</h3>
+<input type="number" id="tempInput" data-placeholder="tempInputPh">
+<div class="top-bar" style="margin-top:10px;">
+<select id="fromTemp" data-i18n-select="temp">
+<option value="C">Celsius (C°)</option>
+<option value="F">Fahrenheit (F°)</option>
+<option value="K">Kelvin (K)</option>
+</select>
+<select id="toTemp" data-i18n-select="temp">
+<option value="F">Fahrenheit (F°)</option>
+<option value="C">Celsius (C°)</option>
+<option value="K">Kelvin (K)</option>
+</select>
+</div>
+<button class="btn-action" onclick="convertTemperature()" id="btnTemp">تحويل الحرارة</button>
+<div class="result" id="tempResult"></div>
+</div>
+
+<!-- قسم العمر -->
+<div id="agePanel" style="display:none;">
+<h3 id="ageTitle">حاسبة العمر الدقيقة</h3>
+<input type="date" id="birthDate">
+<button class="btn-action" onclick="calculateAge()" id="btnAge">احسب العمر</button>
+<div class="result" id="ageResult"></div>
+</div>
+
+<!-- قسم النسبة -->
+<div id="percentPanel" style="display:none;">
+<h3 id="percentTitle">حاسبة النسبة المئوية</h3>
+<div class="percent-inputs">
+<input type="number" id="percentValue" data-placeholder="percentValuePh">
+<input type="number" id="percentTotal" data-placeholder="percentTotalPh">
+</div>
+<button class="btn-action" onclick="calculatePercent()" id="btnPercent">احسب النسبة</button>
+<div class="result" id="percentResult"></div>
+<hr style="border-color:rgba(255,255,255,.1);margin:15px 0;">
+<h3 id="percentChangeTitle">زيادة/نقصان النسبة</h3>
+<div class="percent-inputs">
+<input type="number" id="percentFrom" data-placeholder="percentFromPh">
+<input type="number" id="percentChange" data-placeholder="percentChangePh">
+</div>
+<button class="btn-action" onclick="calculatePercentChange()" id="btnPercentChange">احسب</button>
+<div class="result" id="percentChangeResult"></div>
+</div>
+
+<!-- قسم المؤقت -->
+<div id="timerPanel" style="display:none;">
+<h3 id="timerTitle">⏱️ مؤقت وساعة توقيت</h3>
+<div class="timer-display" id="timerDisplay">00:00:00</div>
+<div class="timer-buttons">
+<button onclick="startTimer()" id="timerStart" style="background:#22c55e;color:white;">▶️ بدء</button>
+<button onclick="timerPause()" id="timerPause" style="background:#facc15;color:#1e293b;">⏸️ إيقاف</button>
+<button onclick="timerReset()" id="timerReset" style="background:#ef4444;color:white;">⏹️ إعادة</button>
+</div>
+</div>
+
+<!-- قسم الخصم -->
+<div id="discountPanel" style="display:none;">
+<h3 id="discountTitle">🏷️ حاسبة الخصم</h3>
+<input type="number" id="discountPrice" data-placeholder="discountPricePh">
+<input type="number" id="discountPercent" data-placeholder="discountPercentPh" style="margin-top:10px;">
+<button class="btn-action" onclick="calculateDiscount()" id="btnDiscount">احسب السعر النهائي</button>
+<div class="result" id="discountResult"></div>
+</div>
+
+<!-- قسم السرعة -->
+<div id="speedPanel" style="display:none;">
+<h3 id="speedTitle">🚗 محول السرعة</h3>
+<input type="number" id="speedInput" data-placeholder="speedInputPh">
+<div class="top-bar" style="margin-top:10px;">
+<select id="fromSpeed" data-i18n-select="speed">
+<option value="kmh">km/h</option>
+<option value="mph">mph</option>
+<option value="ms">m/s</option>
+</select>
+<select id="toSpeed" data-i18n-select="speed">
+<option value="mph">mph</option>
+<option value="kmh">km/h</option>
+<option value="ms">m/s</option>
+</select>
+</div>
+<button class="btn-action" onclick="convertSpeed()" id="btnSpeed">تحويل</button>
+<div class="result" id="speedResult"></div>
+</div>
+
+<!-- قسم السعرات -->
+<div id="energyPanel" style="display:none;">
+<h3 id="energyTitle">🔥 حاسب السعرات الحرارية</h3>
+<input type="number" id="foodWeight" data-placeholder="foodWeightPh" value="100">
+<select id="foodType" style="margin-top:10px;" data-i18n-select="food">
+<option value="rice">Rice</option>
+<option value="bread">Bread</option>
+<option value="chicken">Chicken</option>
+<option value="meat">Meat</option>
+<option value="fish">Fish</option>
+<option value="egg">Egg</option>
+<option value="milk">Milk</option>
+<option value="yogurt">Yogurt</option>
+<option value="banana">Banana</option>
+<option value="apple">Apple</option>
+<option value="orange">Orange</option>
+<option value="dates">Dates</option>
+<option value="almonds">Almonds</option>
+<option value="potato">Potato</option>
+<option value="tomato">Tomato</option>
+<option value="cucumber">Cucumber</option>
+<option value="oil">Olive Oil</option>
+<option value="sugar">Sugar</option>
+<option value="chocolate">Chocolate</option>
+<option value="burger">Burger</option>
+<option value="pizza">Pizza</option>
+<option value="pasta">Pasta</option>
+<option value="lentils">Lentils</option>
+<option value="chickpeas">Chickpeas</option>
+<option value="fries">Fries</option>
+</select>
+<button class="btn-action" onclick="calculateCalories()" id="btnEnergy">🔥 احسب السعرات</button>
+<div class="result" id="energyResult"></div>
+<hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+<h3 style="font-size:1rem;">🔥 حاسبة السعرات اليومية (BMR)</h3>
+<input type="number" id="calWeight" data-placeholder="calWeightPh">
+<input type="number" id="calHeight" data-placeholder="calHeightPh" style="margin-top:10px;">
+<input type="number" id="calAge" data-placeholder="calAgePh" style="margin-top:10px;">
+<select id="calGender" style="margin-top:10px;" data-i18n-select="gender">
+<option value="male">Male</option>
+<option value="female">Female</option>
+</select>
+<select id="calActivity" style="margin-top:10px;" data-i18n-select="activity">
+<option value="1.2">Sedentary</option>
+<option value="1.375">Light</option>
+<option value="1.55">Moderate</option>
+<option value="1.725">Active</option>
+<option value="1.9">Athlete</option>
+</select>
+<button class="btn-action" onclick="calculateDailyCalories()">🔥 احسب احتياجك اليومي</button>
+<div class="result" id="dailyCalResult"></div>
+</div>
+
+<!-- قسم البيانات -->
+<div id="dataPanel" style="display:none;">
+<h3 id="dataTitle">💾 محول البيانات</h3>
+<input type="number" id="dataInput" data-placeholder="dataInputPh">
+<div class="top-bar" style="margin-top:10px;">
+<select id="fromData" data-i18n-select="data">
+<option value="gb">GB</option>
+<option value="mb">MB</option>
+<option value="kb">KB</option>
+<option value="tb">TB</option>
+</select>
+<select id="toData" data-i18n-select="data">
+<option value="mb">MB</option>
+<option value="gb">GB</option>
+<option value="kb">KB</option>
+<option value="tb">TB</option>
+</select>
+</div>
+<button class="btn-action" onclick="convertData()" id="btnData">تحويل</button>
+<div class="result" id="dataResult"></div>
+</div>
+
+<!-- قسم الوقود -->
+<div id="fuelPanel" style="display:none;">
+<h3 id="fuelTitle">⛽ حاسبة الوقود</h3>
+<input type="number" id="fuelDistance" data-placeholder="fuelDistancePh">
+<input type="number" id="fuelConsumption" data-placeholder="fuelConsumptionPh" value="8" style="margin-top:10px;">
+<input type="number" id="fuelPrice" data-placeholder="fuelPricePh" style="margin-top:10px;">
+<button class="btn-action" onclick="calculateFuel()" id="btnFuel">احسب التكلفة</button>
+<div class="result" id="fuelResult"></div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- السجل الجانبي -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="history-sidebar" id="historySidebar">
+<div class="history-sidebar-header">
+<h3 id="sidebarTitle">📋 سجل العمليات</h3>
+<button class="close-sidebar-btn" onclick="toggleSidebar()">✕</button>
+</div>
+<ul class="history-list-sidebar" id="historyListSidebar"></ul>
+<button class="export-history-btn" onclick="exportHistory()">📤 تصدير السجل</button>
+<button class="clear-history-btn" onclick="clearHistory()" id="clearHistoryBtn">🗑️ مسح الكل</button>
+</div>
+
+<!-- نافذة الملاحظة -->
+<div class="note-modal" id="noteModal">
+<div class="note-modal-content">
+<h3 id="noteModalTitle">📝 إضافة ملاحظة</h3>
+<textarea id="noteInput" placeholder="اكتب ملاحظتك هنا..."></textarea>
+<div class="note-modal-buttons">
+<button onclick="saveNote()" style="background:#22c55e;color:white;" id="saveNoteBtn">حفظ</button>
+<button onclick="closeNoteModal()" style="background:#ef4444;color:white;" id="cancelNoteBtn">إلغاء</button>
+</div>
+</div>
+</div>
+
+<div class="sound-toast" id="soundToast"></div>
+<script>
+let lang = "ar";
+let timerInterval = null, timerSeconds = 0, timerRunning = false;
+let editingHistoryLi = null, sciVisible = false, currentExpression = "";
+let audioCtx = null, soundEnabled = true, numSystem = "arabic";
+let historyMemory = [];
+const MARKET_USD_TO_IQD = 157250;
+const OFFICIAL_USD_TO_IQD = 1310;
+(function(){try{const s=localStorage.getItem("soundEnabled");if(s==="false")soundEnabled=false}catch(e){}})();
+
+function initAudio(){if(!soundEnabled)return null;if(!audioCtx){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;audioCtx=new AC()}catch(e){return null}}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
+function beep(freq,duration,type,volume){if(!soundEnabled)return;const ctx=initAudio();if(!ctx)return;try{const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type=type||'square';osc.frequency.value=freq;gain.gain.setValueAtTime(volume||0.08,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+duration)}catch(e){}}
+function playSound(type){if(!soundEnabled)return;try{switch(type){case'operator':beep(900,.08,'sine',.1);break;case'equal':beep(660,.06,'sine',.1);setTimeout(()=>beep(880,.06,'sine',.1),55);setTimeout(()=>beep(1100,.1,'sine',.1),110);break;case'clear':beep(320,.12,'sawtooth',.09);break;case'error':beep(180,.2,'sawtooth',.1);break;default:beep(1400,.04,'square',.07)}}catch(e){}}
+function toggleSound(){soundEnabled=!soundEnabled;const icon=document.getElementById("soundIcon");const btn=document.getElementById("soundToggle");if(soundEnabled){icon.innerText="🔊";btn.classList.remove("muted");try{localStorage.setItem("soundEnabled","true")}catch(e){};showToast(getToastText('on'));setTimeout(()=>beep(900,.08,'sine',.1),100);setTimeout(()=>beep(1200,.1,'sine',.1),180)}else{beep(600,.06,'sine',.1);setTimeout(()=>beep(400,.1,'sine',.1),70);icon.innerText="🔇";btn.classList.add("muted");try{localStorage.setItem("soundEnabled","false")}catch(e){};setTimeout(()=>showToast(getToastText('off')),150)}}
+function getToastText(state){const toasts={ar:{on:"🔊 تم تشغيل الصوت",off:"🔇 تم كتم الصوت",copied:"✅ تم النسخ",cleared:"🗑️ تم مسح السجل",numSys:"🔢 نظام الأرقام",exported:"📤 تم نسخ السجل",saved:"✅ تم الحفظ",shared:"📤 تم نسخ رابط المشاركة"},en:{on:"🔊 Sound On",off:"🔇 Sound Off",copied:"✅ Copied",cleared:"🗑️ History Cleared",numSys:"🔢 Number System",exported:"📤 History copied",saved:"✅ Saved",shared:"📤 Share link copied"},es:{on:"🔊 Sonido Activado",off:"🔇 Sonido Desactivado",copied:"✅ Copiado",cleared:"🗑️ Historial Borrado",numSys:"🔢 Sistema Numérico",exported:"📤 Historial copiado",saved:"✅ Guardado",shared:"📤 Enlace copiado"},fr:{on:"🔊 Son Activé",off:"🔇 Son Désactivé",copied:"✅ Copié",cleared:"🗑️ Historique Effacé",numSys:"🔢 Système Numérique",exported:"📤 Historique copié",saved:"✅ Enregistré",shared:"📤 Lien copié"},el:{on:"🔊 Ήχος Ενεργός",off:"🔇 Ήχος Ανενεργός",copied:"✅ Αντιγράφηκε",cleared:"🗑️ Ιστορικό Διαγράφηκε",numSys:"🔢 Σύστημα Αριθμών",exported:"📤 Ιστορικό αντιγράφηκε",saved:"✅ Αποθηκεύτηκε",shared:"📤 Ο σύνδεσμος αντιγράφηκε"},tr:{on:"🔊 Ses Açık",off:"🔇 Ses Kapalı",copied:"✅ Kopyalandı",cleared:"🗑️ Geçmiş Temizlendi",numSys:"🔢 Sayı Sistemi",exported:"📤 Geçmiş kopyalandı",saved:"✅ Kaydedildi",shared:"📤 Bağlantı kopyalandı"},ku:{on:"🔊 دەنگ چالاکە",off:"🔇 دەنگ ناچالاکە",copied:"✅ کۆپی کرا",cleared:"🗑️ مێژوو سڕایەوە",numSys:"🔢 سیستەمی ژمارە",exported:"📤 مێژوو کۆپی کرا",saved:"✅ پاشەکەوت کرا",shared:"📤 لینک کۆپی کرا"}};const safeLang=(lang&&toasts[lang])?lang:'en';return toasts[safeLang][state]}
+let toastTimeout=null;
+function showToast(message){const toast=document.getElementById("soundToast");toast.innerText=message;toast.classList.add("show");clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>toast.classList.remove("show"),2000)}
+document.addEventListener('click',function(){if(soundEnabled)initAudio()},{once:true});
+document.addEventListener('touchstart',function(){if(soundEnabled)initAudio()},{once:true});
+document.addEventListener('keydown',function(){if(soundEnabled)initAudio()},{once:true});
+
+const numeralSystems={arabic:{digits:"٠١٢٣٤٥٦٧٨٩",decimal:"٫"},hindi:{digits:"0123456789",decimal:"."},english:{digits:"0123456789",decimal:"."}};
+function getNumeralSystem(){if(lang==='ar'||lang==='ku')return numeralSystems[numSystem];return numeralSystems.english}
+function toLocalNumbers(str){if(typeof str!=='string')str=String(str);const sys=getNumeralSystem();let result=str;result=result.replace(/[0-9]/g,d=>sys.digits[parseInt(d)]);if(sys.decimal!=='.')result=result.replace(/\./g,sys.decimal);return result}
+function toEnglishNumbers(str){if(typeof str!=='string')str=String(str);let result=str;result=result.replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));result=result.replace(/٫/g,'.');result=result.replace(/،/g,',');return result}
+function toggleNumSystem(){const systems=['arabic','hindi','english'];const idx=systems.indexOf(numSystem);numSystem=systems[(idx+1)%systems.length];const labels={arabic:'🔢 ٠١٢',hindi:'🔢 012',english:'🔢 123'};document.getElementById("numToggle").innerText=labels[numSystem];updateButtonNumbers();if(currentExpression){document.getElementById("screen").value=toLocalNumbers(currentExpression)}const names={arabic:'عربية',hindi:'هندية',english:'إنجليزية'};showToast('🔢 '+names[numSystem])}
+
+const selectTranslations = {
+  currency: {
+    ar: {USD:"🇺🇸 USD - دولار أمريكي",EUR:"🇪🇺 EUR - يورو",GBP:"🇬🇧 GBP - جنيه إسترليني",JPY:"🇯🇵 JPY - ين ياباني",TRY:"🇹🇷 TRY - ليرة تركية",SAR:"🇸🇦 SAR - ريال سعودي",AED:"🇦🇪 AED - درهم إماراتي",KWD:"🇰🇼 KWD - دينار كويتي",QAR:"🇶🇦 QAR - ريال قطري",IQD:"🇮🇶 IQD - دينار عراقي",EGP:"🇪🇬 EGP - جنيه مصري",JOD:"🇯🇴 JOD - دينار أردني",BHD:"🇧🇭 BHD - دينار بحريني",OMR:"🇴🇲 OMR - ريال عماني",MAD:"🇲🇦 MAD - درهم مغربي",DZD:"🇩🇿 DZD - دينار جزائري",TND:"🇹🇳 TND - دينار تونسي",LYD:"🇱🇾 LYD - دينار ليبي",SDG:"🇸🇩 SDG - جنيه سوداني",SYP:"🇸🇾 SYP - ليرة سورية",LBP:"🇱🇧 LBP - ليرة لبنانية"},
+    en: {USD:"🇺🇸 USD",EUR:"🇪🇺 EUR",GBP:"🇬🇧 GBP",JPY:"🇯🇵 JPY",TRY:"🇹🇷 TRY",SAR:"🇸🇦 SAR",AED:"🇦🇪 AED",KWD:"🇰🇼 KWD",QAR:"🇶🇦 QAR",IQD:"🇮🇶 IQD",EGP:"🇪🇬 EGP",JOD:"🇯🇴 JOD",BHD:"🇧🇭 BHD",OMR:"🇴🇲 OMR",MAD:"🇲🇦 MAD",DZD:"🇩🇿 DZD",TND:"🇹🇳 TND",LYD:"🇱🇾 LYD",SDG:"🇸🇩 SDG",SYP:"🇸🇾 SYP",LBP:"🇱🇧 LBP"},
+    es: {USD:"🇺🇸 USD",EUR:"🇪🇺 EUR",GBP:"🇬🇧 GBP",JPY:"🇯🇵 JPY",TRY:"🇹🇷 TRY",SAR:"🇸🇦 SAR",AED:"🇦🇪 AED",KWD:"🇰🇼 KWD",QAR:"🇶🇦 QAR",IQD:"🇮🇶 IQD",EGP:"🇪🇬 EGP",JOD:"🇯🇴 JOD",BHD:"🇧🇭 BHD",OMR:"🇴🇲 OMR",MAD:"🇲🇦 MAD",DZD:"🇩🇿 DZD",TND:"🇹🇳 TND",LYD:"🇱🇾 LYD",SDG:"🇸🇩 SDG",SYP:"🇸🇾 SYP",LBP:"🇱🇧 LBP"},
+    fr: {USD:"🇺🇸 USD",EUR:"🇪🇺 EUR",GBP:"🇬🇧 GBP",JPY:"🇯🇵 JPY",TRY:"🇹🇷 TRY",SAR:"🇸🇦 SAR",AED:"🇦🇪 AED",KWD:"🇰🇼 KWD",QAR:"🇶🇦 QAR",IQD:"🇮🇶 IQD",EGP:"🇪🇬 EGP",JOD:"🇯🇴 JOD",BHD:"🇧🇭 BHD",OMR:"🇴🇲 OMR",MAD:"🇲🇦 MAD",DZD:"🇩🇿 DZD",TND:"🇹🇳 TND",LYD:"🇱🇾 LYD",SDG:"🇸🇩 SDG",SYP:"🇸🇾 SYP",LBP:"🇱🇧 LBP"},
+    el: {USD:"🇺🇸 USD",EUR:"🇪🇺 EUR",GBP:"🇬🇧 GBP",JPY:"🇯🇵 JPY",TRY:"🇹🇷 TRY",SAR:"🇸🇦 SAR",AED:"🇦🇪 AED",KWD:"🇰🇼 KWD",QAR:"🇶🇦 QAR",IQD:"🇮🇶 IQD",EGP:"🇪🇬 EGP",JOD:"🇯🇴 JOD",BHD:"🇧🇭 BHD",OMR:"🇴🇲 OMR",MAD:"🇲🇦 MAD",DZD:"🇩🇿 DZD",TND:"🇹🇳 TND",LYD:"🇱🇾 LYD",SDG:"🇸🇩 SDG",SYP:"🇸🇾 SYP",LBP:"🇱🇧 LBP"},
+    tr: {USD:"🇺🇸 USD",EUR:"🇪🇺 EUR",GBP:"🇬🇧 GBP",JPY:"🇯🇵 JPY",TRY:"🇹🇷 TRY",SAR:"🇸🇦 SAR",AED:"🇦🇪 AED",KWD:"🇰🇼 KWD",QAR:"🇶🇦 QAR",IQD:"🇮🇶 IQD",EGP:"🇪🇬 EGP",JOD:"🇯🇴 JOD",BHD:"🇧🇭 BHD",OMR:"🇴🇲 OMR",MAD:"🇲🇦 MAD",DZD:"🇩🇿 DZD",TND:"🇹🇳 TND",LYD:"🇱🇾 LYD",SDG:"🇸🇩 SDG",SYP:"🇸🇾 SYP",LBP:"🇱🇧 LBP"},
+    ku: {USD:"🇺🇸 USD",EUR:"🇪🇺 EUR",GBP:"🇬🇧 GBP",JPY:"🇯🇵 JPY",TRY:"🇹🇷 TRY",SAR:"🇸🇦 SAR",AED:"🇦🇪 AED",KWD:"🇰🇼 KWD",QAR:"🇶🇦 QAR",IQD:"🇮🇶 IQD",EGP:"🇪🇬 EGP",JOD:"🇯🇴 JOD",BHD:"🇧🇭 BHD",OMR:"🇴🇲 OMR",MAD:"🇲🇦 MAD",DZD:"🇩🇿 DZD",TND:"🇹🇳 TND",LYD:"🇱🇾 LYD",SDG:"🇸🇩 SDG",SYP:"🇸🇾 SYP",LBP:"🇱🇧 LBP"}
+  },
+  temp: {
+    ar: {C:"سيليزي (C°)", F:"فهرنهايت (F°)", K:"كلفن (K)"},
+    en: {C:"Celsius (C°)", F:"Fahrenheit (F°)", K:"Kelvin (K)"},
+    es: {C:"Celsius (C°)", F:"Fahrenheit (F°)", K:"Kelvin (K)"},
+    fr: {C:"Celsius (C°)", F:"Fahrenheit (F°)", K:"Kelvin (K)"},
+    el: {C:"Κελσίου (C°)", F:"Φαρενάιτ (F°)", K:"Κέλβιν (K)"},
+    tr: {C:"Santigrat (C°)", F:"Fahrenhayt (F°)", K:"Kelvin (K)"},
+    ku: {C:"سیلیزی (C°)", F:"فەهرەنهایت (F°)", K:"کێلڤن (K)"}
+  },
+  speed: {
+    ar: {kmh:"كم/ساعة", mph:"ميل/ساعة", ms:"متر/ثانية"},
+    en: {kmh:"km/h", mph:"mph", ms:"m/s"},
+    es: {kmh:"km/h", mph:"mph", ms:"m/s"},
+    fr: {kmh:"km/h", mph:"mph", ms:"m/s"},
+    el: {kmh:"km/h", mph:"mph", ms:"m/s"},
+    tr: {kmh:"km/s", mph:"mil/s", ms:"m/s"},
+    ku: {kmh:"کم/کاتژمێر", mph:"میل/کاتژمێر", ms:"مەتر/چرکە"}
+  },
+  data: {
+    ar: {gb:"جيجابايت", mb:"ميجابايت", kb:"كيلوبايت", tb:"تيرابايت"},
+    en: {gb:"GB", mb:"MB", kb:"KB", tb:"TB"},
+    es: {gb:"GB", mb:"MB", kb:"KB", tb:"TB"},
+    fr: {gb:"Go", mb:"Mo", kb:"Ko", tb:"To"},
+    el: {gb:"GB", mb:"MB", kb:"KB", tb:"TB"},
+    tr: {gb:"GB", mb:"MB", kb:"KB", tb:"TB"},
+    ku: {gb:"گیگابایت", mb:"میگابایت", kb:"کیلوبایت", tb:"تێرابایت"}
+  },
+  gender: {
+    ar: {male:"👨 ذكر", female:"👩 أنثى"},
+    en: {male:"👨 Male", female:"👩 Female"},
+    es: {male:"👨 Hombre", female:"👩 Mujer"},
+    fr: {male:"👨 Homme", female:"👩 Femme"},
+    el: {male:"👨 Άνδρας", female:"👩 Γυναίκα"},
+    tr: {male:"👨 Erkek", female:"👩 Kadın"},
+    ku: {male:"👨 نێر", female:"👩 مێ"}
+  },
+  activity: {
+    ar: {"1.2":"🛋️ خامل (بدون رياضة)", "1.375":"🚶 خفيف (1-3 أيام)", "1.55":"🏃 متوسط (3-5 أيام)", "1.725":"💪 نشيط (6-7 أيام)", "1.9":"🏋️ رياضي محترف"},
+    en: {"1.2":"🛋️ Sedentary", "1.375":"🚶 Light (1-3 days)", "1.55":"🏃 Moderate (3-5 days)", "1.725":"💪 Active (6-7 days)", "1.9":"🏋️ Athlete"},
+    es: {"1.2":"🛋️ Sedentario", "1.375":"🚶 Ligero", "1.55":"🏃 Moderado", "1.725":"💪 Activo", "1.9":"🏋️ Atleta"},
+    fr: {"1.2":"🛋️ Sédentaire", "1.375":"🚶 Léger", "1.55":"🏃 Modéré", "1.725":"💪 Actif", "1.9":"🏋️ Athlète"},
+    el: {"1.2":"🛋️ Καθιστικός", "1.375":"🚶 Ελαφρύς", "1.55":"🏃 Μέτριος", "1.725":"💪 Ενεργός", "1.9":"🏋️ Αθλητής"},
+    tr: {"1.2":"🛋️ Hareketsiz", "1.375":"🚶 Hafif", "1.55":"🏃 Orta", "1.725":"💪 Aktif", "1.9":"🏋️ Sporcu"},
+    ku: {"1.2":"🛋️ بێ چالاکی", "1.375":"🚶 سووک", "1.55":"🏃 مامناوەند", "1.725":"💪 چالاک", "1.9":"🏋️ وەرزشوان"}
+  },
+  food: {
+    ar: {rice:"🍚 أرز (130)", bread:"🍞 خبز (265)", chicken:"🍗 دجاج (165)", meat:"🥩 لحم (250)", fish:"🐟 سمك (206)", egg:"🥚 بيض (155)", milk:"🥛 حليب (42)", yogurt:"🥣 زبادي (59)", banana:"🍌 موز (89)", apple:"🍎 تفاح (52)", orange:"🍊 برتقال (47)", dates:"🌴 تمر (277)", almonds:"🌰 لوز (579)", potato:"🥔 بطاطا (77)", tomato:"🍅 طماطم (18)", cucumber:"🥒 خيار (15)", oil:"🫒 زيت زيتون (884)", sugar:"🍬 سكر (387)", chocolate:"🍫 شوكولاتة (546)", burger:"🍔 برغر (295)", pizza:"🍕 بيتزا (266)", pasta:"🍝 معكرونة (131)", lentils:"🫘 عدس (116)", chickpeas:"🫛 حمص (164)", fries:"🍟 بطاطا مقلية (312)"},
+    en: {rice:"🍚 Rice (130)", bread:"🍞 Bread (265)", chicken:"🍗 Chicken (165)", meat:"🥩 Meat (250)", fish:"🐟 Fish (206)", egg:"🥚 Egg (155)", milk:"🥛 Milk (42)", yogurt:"🥣 Yogurt (59)", banana:"🍌 Banana (89)", apple:"🍎 Apple (52)", orange:"🍊 Orange (47)", dates:"🌴 Dates (277)", almonds:"🌰 Almonds (579)", potato:"🥔 Potato (77)", tomato:"🍅 Tomato (18)", cucumber:"🥒 Cucumber (15)", oil:"🫒 Olive Oil (884)", sugar:"🍬 Sugar (387)", chocolate:"🍫 Chocolate (546)", burger:"🍔 Burger (295)", pizza:"🍕 Pizza (266)", pasta:"🍝 Pasta (131)", lentils:"🫘 Lentils (116)", chickpeas:"🫛 Chickpeas (164)", fries:"🍟 Fries (312)"},
+    es: {rice:"🍚 Arroz", bread:"🍞 Pan", chicken:"🍗 Pollo", meat:"🥩 Carne", fish:"🐟 Pescado", egg:"🥚 Huevo", milk:"🥛 Leche", yogurt:"🥣 Yogur", banana:"🍌 Plátano", apple:"🍎 Manzana", orange:"🍊 Naranja", dates:"🌴 Dátiles", almonds:"🌰 Almendras", potato:"🥔 Patata", tomato:"🍅 Tomate", cucumber:"🥒 Pepino", oil:"🫒 Aceite", sugar:"🍬 Azúcar", chocolate:"🍫 Chocolate", burger:"🍔 Hamburguesa", pizza:"🍕 Pizza", pasta:"🍝 Pasta", lentils:"🫘 Lentejas", chickpeas:"🫛 Garbanzos", fries:"🍟 Patatas fritas"},
+    fr: {rice:"🍚 Riz", bread:"🍞 Pain", chicken:"🍗 Poulet", meat:"🥩 Viande", fish:"🐟 Poisson", egg:"🥚 Œuf", milk:"🥛 Lait", yogurt:"🥣 Yaourt", banana:"🍌 Banane", apple:"🍎 Pomme", orange:"🍊 Orange", dates:"🌴 Dattes", almonds:"🌰 Amandes", potato:"🥔 Pomme de terre", tomato:"🍅 Tomate", cucumber:"🥒 Concombre", oil:"🫒 Huile d'olive", sugar:"🍬 Sucre", chocolate:"🍫 Chocolat", burger:"🍔 Burger", pizza:"🍕 Pizza", pasta:"🍝 Pâtes", lentils:"🫘 Lentilles", chickpeas:"🫛 Pois chiches", fries:"🍟 Frites"},
+    el: {rice:"🍚 Ρύζι", bread:"🍞 Ψωμί", chicken:"🍗 Κοτόπουλο", meat:"🥩 Κρέας", fish:"🐟 Ψάρι", egg:"🥚 Αυγό", milk:"🥛 Γάλα", yogurt:"🥣 Γιαούρτι", banana:"🍌 Μπανάνα", apple:"🍎 Μήλο", orange:"🍊 Πορτοκάλι", dates:"🌴 Χουρμάδες", almonds:"🌰 Αμύγδαλα", potato:"🥔 Πατάτα", tomato:"🍅 Ντομάτα", cucumber:"🥒 Αγγούρι", oil:"🫒 Ελαιόλαδο", sugar:"🍬 Ζάχαρη", chocolate:"🍫 Σοκολάτα", burger:"🍔 Μπέργκερ", pizza:"🍕 Πίτσα", pasta:"🍝 Ζυμαρικά", lentils:"🫘 Φακές", chickpeas:"🫛 Ρεβίθια", fries:"🍟 Πατάτες"},
+    tr: {rice:"🍚 Pirinç", bread:"🍞 Ekmek", chicken:"🍗 Tavuk", meat:"🥩 Et", fish:"🐟 Balık", egg:"🥚 Yumurta", milk:"🥛 Süt", yogurt:"🥣 Yoğurt", banana:"🍌 Muz", apple:"🍎 Elma", orange:"🍊 Portakal", dates:"🌴 Hurma", almonds:"🌰 Badem", potato:"🥔 Patates", tomato:"🍅 Domates", cucumber:"🥒 Salatalık", oil:"🫒 Zeytinyağı", sugar:"🍬 Şeker", chocolate:"🍫 Çikolata", burger:"🍔 Burger", pizza:"🍕 Pizza", pasta:"🍝 Makarna", lentils:"🫘 Mercimek", chickpeas:"🫛 Nohut", fries:"🍟 Patates kızartması"},
+    ku: {rice:"🍚 برنج", bread:"🍞 نان", chicken:"🍗 مریشک", meat:"🥩 گۆشت", fish:"🐟 ماسی", egg:"🥚 هێلکە", milk:"🥛 شیر", yogurt:"🥣 ماست", banana:"🍌 مۆز", apple:"🍎 سێو", orange:"🍊 پرتەقاڵ", dates:"🌴 خورما", almonds:"🌰 بادەم", potato:"🥔 پەتاتە", tomato:"🍅 تەماتە", cucumber:"🥒 خەیار", oil:"🫒 زەیتی زەیتوون", sugar:"🍬 شەکر", chocolate:"🍫 شوکولاتە", burger:"🍔 بێرگەر", pizza:"🍕 پیتزا", pasta:"🍝 ماکارۆنی", lentils:"🫘 نیسک", chickpeas:"🫛 نۆک", fries:"🍟 پەتاتەی سووراو"}
+  }
+};
+
+function updateSelects() {
+  document.querySelectorAll('[data-i18n-select]').forEach(select => {
+    const type = select.getAttribute('data-i18n-select');
+    const translations = selectTranslations[type];
+    if (!translations) return;
+    const langData = translations[lang] || translations['en'];
+    Array.from(select.options).forEach(option => {
+      const val = option.value;
+      if (langData[val]) {
+        option.textContent = langData[val];
+      }
+    });
+  });
+}
+
+const text={
+ar:{title:"ZY calcO 1.2",currency:"تحويل العملات (مباشر)",health:"حاسبة الصحة (BMI + العمر)",temp:"محول درجات الحرارة",age:"حاسبة العمر من المواليد",percent:"حاسبة النسبة المئوية",percentChange:"زيادة/نقصان النسبة",timer:"⏱️ مؤقت وساعة توقيت",history:"📋 سجل العمليات",tabCurr:"العملات",tabHealth:"الصحة",tabTemp:"الحرارة",tabAge:"العمر",tabPercent:"نسبة",tabTimer:"مؤقت",tabDiscount:"خصم",tabSpeed:"سرعة",tabEnergy:"سعرات",tabData:"بيانات",tabFuel:"وقود",btnConvert:"تحويل",btnHealth:"احسب مؤشر الصحة",btnTemp:"تحويل الحرارة",btnAge:"احسب العمر",btnPercent:"احسب النسبة",btnPercentChange:"احسب",btnDiscount:"احسب",btnSpeed:"تحويل",btnEnergy:"🔥 احسب السعرات",btnData:"تحويل",btnFuel:"احسب",clearHistory:"🗑️ مسح الكل",toggleHistory:"السجل",copyResult:"📋 نسخ",copied:"✅ تم النسخ",toolsToggle:"🧰 الأدوات",toolsToggleClose:"🔽 إخفاء",noteTitle:"📝 إضافة ملاحظة",saveNote:"حفظ",cancelNote:"إلغاء",useBtn:"↩️ استخدام",noteBtn:"📝 ملاحظة",timerStart:"▶️ بدء",timerPause:"⏸️ إيقاف",timerReset:"⏹️ إعادة",bmiLabel1:"نقص وزن",bmiLabel2:"مثالي",bmiLabel3:"زيادة",bmiLabel4:"سمنة",underweight:"نقص وزن",normal:"وزن مثالي ✨",overweight:"وزن زائد",obese:"سمنة",idealWeight:"الوزن المثالي",ageCategory:"الفئة العمرية",child:"طفل",teen:"مراهق",adult:"بالغ",senior:"كبير سن",exportHistory:"📤 تصدير السجل",discountTitle:"🏷️ حاسبة الخصم",speedTitle:"🚗 محول السرعة",energyTitle:"🔥 حاسب السعرات",dataTitle:"💾 محول البيانات",fuelTitle:"⛽ حاسبة الوقود",ratingBtn:"⭐ قيّم التطبيق",shareBtn:"📤 شارك",amountPh:"أدخل المبلغ",weightPh:"الوزن بالـ كيلوغرام",heightPh:"الطول بالـ سنتيمتر",healthAgePh:"العمر بالسنوات",tempInputPh:"أدخل الدرجة",percentValuePh:"القيمة",percentTotalPh:"الإجمالي",percentFromPh:"القيمة الأصلية",percentChangePh:"النسبة المئوية %",discountPricePh:"السعر الأصلي",discountPercentPh:"نسبة الخصم %",speedInputPh:"القيمة",foodWeightPh:"الوزن (غرام)",calWeightPh:"الوزن (كغم)",calHeightPh:"الطول (سم)",calAgePh:"العمر (سنة)",dataInputPh:"القيمة",fuelDistancePh:"المسافة (كم)",fuelConsumptionPh:"استهلاك (لتر/100كم)",fuelPricePh:"سعر اللتر"},
+en:{title:"ZY calcO 1.2",currency:"Live Currency Converter",health:"Health Calculator (BMI + Age)",temp:"Temperature Converter",age:"Age Calculator",percent:"Percentage Calculator",percentChange:"Increase/Decrease",timer:"⏱️ Timer & Stopwatch",history:"📋 History",tabCurr:"Currency",tabHealth:"Health",tabTemp:"Temperature",tabAge:"Age",tabPercent:"Percent",tabTimer:"Timer",tabDiscount:"Discount",tabSpeed:"Speed",tabEnergy:"Calories",tabData:"Data",tabFuel:"Fuel",btnConvert:"Convert",btnHealth:"Calculate Health",btnTemp:"Convert",btnAge:"Calculate Age",btnPercent:"Calculate",btnPercentChange:"Calculate",btnDiscount:"Calculate",btnSpeed:"Convert",btnEnergy:"🔥 Calculate Calories",btnData:"Convert",btnFuel:"Calculate",clearHistory:"🗑️ Clear All",toggleHistory:"History",copyResult:"📋 Copy",copied:"✅ Copied",toolsToggle:"🧰 Tools",toolsToggleClose:"🔽 Hide",noteTitle:"📝 Add Note",saveNote:"Save",cancelNote:"Cancel",useBtn:"↩️ Use",noteBtn:"📝 Note",timerStart:"▶️ Start",timerPause:"⏸️ Pause",timerReset:"⏹️ Reset",bmiLabel1:"Underweight",bmiLabel2:"Normal",bmiLabel3:"Overweight",bmiLabel4:"Obese",underweight:"Underweight",normal:"Normal ✨",overweight:"Overweight",obese:"Obese",idealWeight:"Ideal Weight",ageCategory:"Age Category",child:"Child",teen:"Teen",adult:"Adult",senior:"Senior",exportHistory:"📤 Export History",discountTitle:"🏷️ Discount Calculator",speedTitle:"🚗 Speed Converter",energyTitle:"🔥 Calorie Calculator",dataTitle:"💾 Data Converter",fuelTitle:"⛽ Fuel Calculator",ratingBtn:"⭐ Rate App",shareBtn:"📤 Share",amountPh:"Enter amount",weightPh:"Weight in kg",heightPh:"Height in cm",healthAgePh:"Age in years",tempInputPh:"Enter temperature",percentValuePh:"Value",percentTotalPh:"Total",percentFromPh:"Original value",percentChangePh:"Percentage %",discountPricePh:"Original price",discountPercentPh:"Discount %",speedInputPh:"Value",foodWeightPh:"Weight (grams)",calWeightPh:"Weight (kg)",calHeightPh:"Height (cm)",calAgePh:"Age (years)",dataInputPh:"Value",fuelDistancePh:"Distance (km)",fuelConsumptionPh:"Consumption (L/100km)",fuelPricePh:"Price per liter"},
+es:{title:"ZY calcO 1.2",currency:"Conversor en Vivo",health:"Calculadora de Salud",temp:"Conversor de Temperatura",age:"Calculadora de Edad",percent:"Calculadora de Porcentaje",percentChange:"Aumento/Disminución",timer:"⏱️ Temporizador",history:"📋 Historial",tabCurr:"Moneda",tabHealth:"Salud",tabTemp:"Temperatura",tabAge:"Edad",tabPercent:"Porcentaje",tabTimer:"Temporizador",tabDiscount:"Descuento",tabSpeed:"Velocidad",tabEnergy:"Calorías",tabData:"Datos",tabFuel:"Combustible",btnConvert:"Convertir",btnHealth:"Calcular",btnTemp:"Convertir",btnAge:"Calcular",btnPercent:"Calcular",btnPercentChange:"Calcular",btnDiscount:"Calcular",btnSpeed:"Convertir",btnEnergy:"🔥 Calcular Calorías",btnData:"Convertir",btnFuel:"Calcular",clearHistory:"🗑️ Borrar Todo",toggleHistory:"Historial",copyResult:"📋 Copiar",copied:"✅ Copiado",toolsToggle:"🧰 Herramientas",toolsToggleClose:"🔽 Ocultar",noteTitle:"📝 Agregar Nota",saveNote:"Guardar",cancelNote:"Cancelar",useBtn:"↩️ Usar",noteBtn:"📝 Nota",timerStart:"▶️ Iniciar",timerPause:"⏸️ Pausar",timerReset:"⏹️ Reiniciar",bmiLabel1:"Bajo peso",bmiLabel2:"Normal",bmiLabel3:"Sobrepeso",bmiLabel4:"Obesidad",underweight:"Bajo peso",normal:"Normal ✨",overweight:"Sobrepeso",obese:"Obesidad",idealWeight:"Peso Ideal",ageCategory:"Categoría",child:"Niño",teen:"Adolescente",adult:"Adulto",senior:"Mayor",exportHistory:"📤 Exportar",discountTitle:"🏷️ Calculadora de Descuento",speedTitle:"🚗 Conversor de Velocidad",energyTitle:"🔥 Calculadora de Calorías",dataTitle:"💾 Conversor de Datos",fuelTitle:"⛽ Calculadora de Combustible",ratingBtn:"⭐ Calificar App",shareBtn:"📤 Compartir",amountPh:"Ingrese monto",weightPh:"Peso en kg",heightPh:"Altura en cm",healthAgePh:"Edad en años",tempInputPh:"Ingrese temperatura",percentValuePh:"Valor",percentTotalPh:"Total",percentFromPh:"Valor original",percentChangePh:"Porcentaje %",discountPricePh:"Precio original",discountPercentPh:"Descuento %",speedInputPh:"Valor",foodWeightPh:"Peso (gramos)",calWeightPh:"Peso (kg)",calHeightPh:"Altura (cm)",calAgePh:"Edad (años)",dataInputPh:"Valor",fuelDistancePh:"Distancia (km)",fuelConsumptionPh:"Consumo (L/100km)",fuelPricePh:"Precio por litro"},
+fr:{title:"ZY calcO 1.2",currency:"Convertisseur en Direct",health:"Calculatrice de Santé",temp:"Convertisseur de Température",age:"Calculatrice d'Âge",percent:"Calculatrice de Pourcentage",percentChange:"Augmentation/Diminution",timer:"⏱️ Minuteur",history:"📋 Historique",tabCurr:"Devise",tabHealth:"Santé",tabTemp:"Température",tabAge:"Âge",tabPercent:"Pourcentage",tabTimer:"Minuteur",tabDiscount:"Remise",tabSpeed:"Vitesse",tabEnergy:"Calories",tabData:"Données",tabFuel:"Carburant",btnConvert:"Convertir",btnHealth:"Calculer",btnTemp:"Convertir",btnAge:"Calculer",btnPercent:"Calculer",btnPercentChange:"Calculer",btnDiscount:"Calculer",btnSpeed:"Convertir",btnEnergy:"🔥 Calculer Calories",btnData:"Convertir",btnFuel:"Calculer",clearHistory:"🗑️ Tout Effacer",toggleHistory:"Historique",copyResult:"📋 Copier",copied:"✅ Copié",toolsToggle:"🧰 Outils",toolsToggleClose:"🔽 Masquer",noteTitle:"📝 Ajouter une Note",saveNote:"Enregistrer",cancelNote:"Annuler",useBtn:"↩️ Utiliser",noteBtn:"📝 Note",timerStart:"▶️ Démarrer",timerPause:"⏸️ Pause",timerReset:"⏹️ Réinitialiser",bmiLabel1:"Insuffisance",bmiLabel2:"Normal",bmiLabel3:"Surpoids",bmiLabel4:"Obésité",underweight:"Insuffisance",normal:"Normal ✨",overweight:"Surpoids",obese:"Obésité",idealWeight:"Poids Idéal",ageCategory:"Catégorie",child:"Enfant",teen:"Adolescent",adult:"Adulte",senior:"Senior",exportHistory:"📤 Exporter",discountTitle:"🏷️ Calculatrice de Remise",speedTitle:"🚗 Convertisseur de Vitesse",energyTitle:"🔥 Calculatrice de Calories",dataTitle:"💾 Convertisseur de Données",fuelTitle:"⛽ Calculatrice de Carburant",ratingBtn:"⭐ Évaluer",shareBtn:"📤 Partager",amountPh:"Entrez le montant",weightPh:"Poids en kg",heightPh:"Taille en cm",healthAgePh:"Âge en années",tempInputPh:"Entrez la température",percentValuePh:"Valeur",percentTotalPh:"Total",percentFromPh:"Valeur originale",percentChangePh:"Pourcentage %",discountPricePh:"Prix original",discountPercentPh:"Remise %",speedInputPh:"Valeur",foodWeightPh:"Poids (grammes)",calWeightPh:"Poids (kg)",calHeightPh:"Taille (cm)",calAgePh:"Âge (années)",dataInputPh:"Valeur",fuelDistancePh:"Distance (km)",fuelConsumptionPh:"Consommation (L/100km)",fuelPricePh:"Prix par litre"},
+el:{title:"ZY calcO 1.2",currency:"Μετατροπέας Νομίσματος",health:"Αριθμομηχανή Υγείας",temp:"Μετατροπέας Θερμοκρασίας",age:"Αριθμομηχανή Ηλικίας",percent:"Αριθμομηχανή Ποσοστού",percentChange:"Αύξηση/Μείωση",timer:"⏱️ Χρονόμετρο",history:"📋 Ιστορικό",tabCurr:"Νόμισμα",tabHealth:"Υγεία",tabTemp:"Θερμοκρασία",tabAge:"Ηλικία",tabPercent:"Ποσοστό",tabTimer:"Χρονόμετρο",tabDiscount:"Έκπτωση",tabSpeed:"Ταχύτητα",tabEnergy:"Θερμίδες",tabData:"Δεδομένα",tabFuel:"Καύσιμο",btnConvert:"Μετατροπή",btnHealth:"Υπολογισμός",btnTemp:"Μετατροπή",btnAge:"Υπολογισμός",btnPercent:"Υπολογισμός",btnPercentChange:"Υπολογισμός",btnDiscount:"Υπολογισμός",btnSpeed:"Μετατροπή",btnEnergy:"🔥 Υπολογισμός Θερμίδων",btnData:"Μετατροπή",btnFuel:"Υπολογισμός",clearHistory:"🗑️ Διαγραφή",toggleHistory:"Ιστορικό",copyResult:"📋 Αντιγραφή",copied:"✅ Αντιγράφηκε",toolsToggle:"🧰 Εργαλεία",toolsToggleClose:"🔽 Απόκρυψη",noteTitle:"📝 Σημείωση",saveNote:"Αποθήκευση",cancelNote:"Ακύρωση",useBtn:"↩️ Χρήση",noteBtn:"📝 Σημείωση",timerStart:"▶️ Έναρξη",timerPause:"⏸️ Παύση",timerReset:"⏹️ Επαναφορά",bmiLabel1:"Ελλιποβαρής",bmiLabel2:"Φυσιολογικό",bmiLabel3:"Υπέρβαρος",bmiLabel4:"Παχυσαρκία",underweight:"Ελλιποβαρής",normal:"Φυσιολογικό ✨",overweight:"Υπέρβαρος",obese:"Παχυσαρκία",idealWeight:"Ιδανικό Βάρος",ageCategory:"Κατηγορία",child:"Παιδί",teen:"Έφηβος",adult:"Ενήλικας",senior:"Ηλικιωμένος",exportHistory:"📤 Εξαγωγή",discountTitle:"🏷️ Αριθμομηχανή Έκπτωσης",speedTitle:"🚗 Μετατροπέας Ταχύτητας",energyTitle:"🔥 Αριθμομηχανή Θερμίδων",dataTitle:"💾 Μετατροπέας Δεδομένων",fuelTitle:"⛽ Αριθμομηχανή Καυσίμου",ratingBtn:"⭐ Αξιολόγηση",shareBtn:"📤 Κοινοποίηση",amountPh:"Εισάγετε ποσό",weightPh:"Βάρος σε kg",heightPh:"Ύψος σε cm",healthAgePh:"Ηλικία σε χρόνια",tempInputPh:"Εισάγετε θερμοκρασία",percentValuePh:"Τιμή",percentTotalPh:"Σύνολο",percentFromPh:"Αρχική τιμή",percentChangePh:"Ποσοστό %",discountPricePh:"Αρχική τιμή",discountPercentPh:"Έκπτωση %",speedInputPh:"Τιμή",foodWeightPh:"Βάρος (γραμμάρια)",calWeightPh:"Βάρος (kg)",calHeightPh:"Ύψος (cm)",calAgePh:"Ηλικία (χρόνια)",dataInputPh:"Τιμή",fuelDistancePh:"Απόσταση (km)",fuelConsumptionPh:"Κατανάλωση (L/100km)",fuelPricePh:"Τιμή ανά λίτρο"},
+tr:{title:"ZY calcO 1.2",currency:"Canlı Döviz",health:"Sağlık Hesaplayıcı",temp:"Sıcaklık Çevirici",age:"Yaş Hesaplayıcı",percent:"Yüzde Hesaplayıcı",percentChange:"Artış/Azalış",timer:"⏱️ Zamanlayıcı",history:"📋 Geçmiş",tabCurr:"Döviz",tabHealth:"Sağlık",tabTemp:"Sıcaklık",tabAge:"Yaş",tabPercent:"Yüzde",tabTimer:"Zamanlayıcı",tabDiscount:"İndirim",tabSpeed:"Hız",tabEnergy:"Kalori",tabData:"Veri",tabFuel:"Yakıt",btnConvert:"Çevir",btnHealth:"Hesapla",btnTemp:"Çevir",btnAge:"Hesapla",btnPercent:"Hesapla",btnPercentChange:"Hesapla",btnDiscount:"Hesapla",btnSpeed:"Çevir",btnEnergy:"🔥 Kalori Hesapla",btnData:"Çevir",btnFuel:"Hesapla",clearHistory:"🗑️ Temizle",toggleHistory:"Geçmiş",copyResult:"📋 Kopyala",copied:"✅ Kopyalandı",toolsToggle:"🧰 Araçlar",toolsToggleClose:"🔽 Gizle",noteTitle:"📝 Not Ekle",saveNote:"Kaydet",cancelNote:"İptal",useBtn:"↩️ Kullan",noteBtn:"📝 Not",timerStart:"▶️ Başlat",timerPause:"⏸️ Duraklat",timerReset:"⏹️ Sıfırla",bmiLabel1:"Zayıf",bmiLabel2:"Normal",bmiLabel3:"Fazla Kilolu",bmiLabel4:"Obez",underweight:"Zayıf",normal:"Normal ✨",overweight:"Fazla Kilolu",obese:"Obez",idealWeight:"İdeal Kilo",ageCategory:"Kategori",child:"Çocuk",teen:"Genç",adult:"Yetişkin",senior:"Yaşlı",exportHistory:"📤 Dışa Aktar",discountTitle:"🏷️ İndirim Hesaplayıcı",speedTitle:"🚗 Hız Çevirici",energyTitle:"🔥 Kalori Hesaplayıcı",dataTitle:"💾 Veri Çevirici",fuelTitle:"⛽ Yakıt Hesaplayıcı",ratingBtn:"⭐ Değerlendir",shareBtn:"📤 Paylaş",amountPh:"Miktar girin",weightPh:"Kilo (kg)",heightPh:"Boy (cm)",healthAgePh:"Yaş (yıl)",tempInputPh:"Sıcaklık girin",percentValuePh:"Değer",percentTotalPh:"Toplam",percentFromPh:"Orijinal değer",percentChangePh:"Yüzde %",discountPricePh:"Orijinal fiyat",discountPercentPh:"İndirim %",speedInputPh:"Değer",foodWeightPh:"Ağırlık (gram)",calWeightPh:"Kilo (kg)",calHeightPh:"Boy (cm)",calAgePh:"Yaş (yıl)",dataInputPh:"Değer",fuelDistancePh:"Mesafe (km)",fuelConsumptionPh:"Tüketim (L/100km)",fuelPricePh:"Litre fiyatı"},
+ku:{title:"ZY calcO 1.2",currency:"گۆڕەری دراو",health:"حسابکەری تەندروستی",temp:"گۆڕەری گەرمی",age:"حسابکەری تەمەن",percent:"حسابکەری ڕێژە",percentChange:"زیادبوون/کەمبوون",timer:"⏱️ کاتژمێر",history:"📋 مێژوو",tabCurr:"دراو",tabHealth:"تەندروستی",tabTemp:"گەرمی",tabAge:"تەمەن",tabPercent:"ڕێژە",tabTimer:"کاتژمێر",tabDiscount:"داشکاندن",tabSpeed:"خێرایی",tabEnergy:"کالۆری",tabData:"داتا",tabFuel:"سووتەمەنی",btnConvert:"گۆڕین",btnHealth:"حسابکردن",btnTemp:"گۆڕین",btnAge:"حسابکردن",btnPercent:"حسابکردن",btnPercentChange:"حسابکردن",btnDiscount:"حسابکردن",btnSpeed:"گۆڕین",btnEnergy:"🔥 حسابکردنی کالۆری",btnData:"گۆڕین",btnFuel:"حسابکردن",clearHistory:"🗑️ سڕینەوە",toggleHistory:"مێژوو",copyResult:"📋 کۆپی",copied:"✅ کۆپی کرا",toolsToggle:"🧰 ئامرازەکان",toolsToggleClose:"🔽 شاردنەوە",noteTitle:"📝 تێبینی",saveNote:"پاشەکەوت",cancelNote:"هەڵوەشاندن",useBtn:"↩️ بەکارهێنان",noteBtn:"📝 تێبینی",timerStart:"▶️ دەستپێکردن",timerPause:"⏸️ وەستان",timerReset:"⏹️ ڕێکخستن",bmiLabel1:"کەم ئەندام",bmiLabel2:"ئاسایی",bmiLabel3:"زیادە ئەندام",bmiLabel4:"قەڵەوی",underweight:"کەم ئەندام",normal:"ئاسایی ✨",overweight:"زیادە ئەندام",obese:"قەڵەوی",idealWeight:"کێشی گونجاو",ageCategory:"پۆل",child:"منداڵ",teen:"هەرزەکار",adult:"گەورەسال",senior:"بەساڵاچوو",exportHistory:"📤 هەناردەکردن",discountTitle:"🏷️ حسابکەری داشکاندن",speedTitle:"🚗 گۆڕەری خێرایی",energyTitle:"🔥 حسابکەری کالۆری",dataTitle:"💾 گۆڕەری داتا",fuelTitle:"⛽ حسابکەری سووتەمەنی",ratingBtn:"⭐ هەڵسەنگاندن",shareBtn:"📤 بڵاوکردنەوە",amountPh:"بڕ بنووسە",weightPh:"کێش (کگم)",heightPh:"بەرزی (سم)",healthAgePh:"تەمەن (ساڵ)",tempInputPh:"پلەی گەرمی بنووسە",percentValuePh:"بەها",percentTotalPh:"کۆی گشتی",percentFromPh:"بەهای ڕەسەن",percentChangePh:"ڕێژە %",discountPricePh:"نرخی ڕەسەن",discountPercentPh:"داشکاندن %",speedInputPh:"بەها",foodWeightPh:"کێش (گرام)",calWeightPh:"کێش (کگم)",calHeightPh:"بەرزی (سم)",calAgePh:"تەمەن (ساڵ)",dataInputPh:"بەها",fuelDistancePh:"دووری (کم)",fuelConsumptionPh:"بەکارهێنان (ل/100کم)",fuelPricePh:"نرخی لیتر"}
+};
+
+function t(key){const safeLang=(lang&&text[lang])?lang:'en';return (text[safeLang]&&text[safeLang][key])||text['en'][key]||key}
+
+function appendValue(v){let screen=document.getElementById("screen");if(screen.value.includes("⚠️")){if(/[0-9٠-٩]/.test(v)){currentExpression="";screen.value=""}else return}if(v==='C'){playSound('clear');currentExpression="";screen.value="";return}if(['+','-','*','/','%','.'].includes(v))playSound('operator');else playSound('click');currentExpression+=v;screen.value=toLocalNumbers(currentExpression)}
+
+function calculate(){
+  try{
+    let screen=document.getElementById("screen");
+    if(!currentExpression||currentExpression.trim()==="")return;
+    const originalExpression=currentExpression;
+    let expr=toEnglishNumbers(currentExpression);
+    expr=expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+    let result;
+    try{result=eval(expr)}catch(e){
+      screen.value=lang==="ar"?"⚠️ تعبير غير صالح":"⚠️ Invalid expression";
+      screen.style.fontSize="1.5rem";screen.style.color="#ef4444";playSound('error');return;
+    }
+    if(!isFinite(result)){
+      screen.value=lang==="ar"?"⚠️ لا يمكن القسمة على صفر":"⚠️ Cannot divide by zero";
+      screen.style.fontSize="1.5rem";screen.style.color="#ef4444";playSound('error');return;
+    }
+    let displayResult=Number.isInteger(result)?result:parseFloat(result.toFixed(10));
+    screen.value=toLocalNumbers(String(displayResult));
+    screen.style.fontSize="2rem";screen.style.color="";
+    playSound('equal');
+    addHistoryItem(toLocalNumbers(originalExpression)+' = '+toLocalNumbers(String(displayResult)),originalExpression);
+    currentExpression=String(displayResult);
+  }catch(e){console.error("Error:",e)}
+}
+
+document.addEventListener('keydown',function(event){const key=event.key;const activeEl=document.activeElement;if(activeEl&&(activeEl.tagName==='INPUT'||activeEl.tagName==='TEXTAREA'||activeEl.tagName==='SELECT')){if(activeEl.id!=='screen'){if(key==='Enter'){event.preventDefault();handleEnterInPanel(activeEl)}return}}if((key>='0'&&key<='9')||key==='.'){appendValue(key)}else if(key==='+'){appendValue('+')}else if(key==='-'){appendValue('-')}else if(key==='*'){appendValue('*')}else if(key==='/'){event.preventDefault();appendValue('/')}else if(key==='%'){appendValue('%')}else if(key==='('){appendValue('(')}else if(key===')'){appendValue(')')}else if(key==='Enter'||key==='='){event.preventDefault();calculate()}else if(key==='Escape'){appendValue('C')}else if(key==='Backspace'){currentExpression=currentExpression.slice(0,-1);document.getElementById("screen").value=toLocalNumbers(currentExpression)}});
+
+function handleEnterInPanel(el){const id=el.id;if(id==='amount'||id==='fromCurrency'||id==='toCurrency')convertCurrency();else if(id==='weight'||id==='height'||id==='healthAge')calculateHealth();else if(id==='tempInput'||id==='fromTemp'||id==='toTemp')convertTemperature();else if(id==='birthDate')calculateAge();else if(id==='percentValue'||id==='percentTotal')calculatePercent();else if(id==='percentFrom'||id==='percentChange')calculatePercentChange();else if(id==='discountPrice'||id==='discountPercent')calculateDiscount();else if(id==='speedInput')convertSpeed();else if(id==='foodWeight')calculateCalories();else if(id==='calWeight'||id==='calHeight'||id==='calAge')calculateDailyCalories();else if(id==='dataInput')convertData();else if(id==='fuelDistance'||id==='fuelConsumption'||id==='fuelPrice')calculateFuel()}
+
+function switchTab(tab,event){const panels=['currency','health','temp','age','percent','timer','discount','speed','energy','data','fuel'];panels.forEach(p=>{const el=document.getElementById(p+'Panel');if(el)el.style.display=p===tab?'block':'none'});let tabs=document.querySelectorAll('.tab-btn');tabs.forEach(t=>t.classList.remove('active'));if(event&&event.currentTarget)event.currentTarget.classList.add('active')}
+
+function openRatingForm() {
+  const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdqMc5waBJArDz1WLtFIpssll4cRWW1AZoiL3yAmoIvwEu9ig/viewform";
+  window.open(formUrl, "_blank");
+  showToast(lang === "ar" ? "⭐ شكراً لتقييمك!" : "⭐ Thanks for rating!");
+}
+
+function sideLogoClick() {
+  const msgs = {
+    ar: "🫒 Zaytoon O — شركة برمجيات ذكية",
+    en: "🫒 Zaytoon O — Smart Software Company",
+    es: "🫒 Zaytoon O — Empresa de Software Inteligente",
+    fr: "🫒 Zaytoon O — Entreprise de Logiciels Intelligents",
+    el: "🫒 Zaytoon O — Έξυπνη Εταιρεία Λογισμικού",
+    tr: "🫒 Zaytoon O — Akıllı Yazılım Şirketi",
+    ku: "🫒 Zaytoon O — کۆمپانیای نەرمەکاڵای زیرەک"
+  };
+  showToast(msgs[lang] || msgs['en']);
+}
+
+function shareApp() {
+  const appUrl = window.location.href;
+  const shareText = lang === "ar" 
+    ? "🧮 جرب حاسبة ZY calcO 1.2 — آلة حاسبة متعددة الاستخدامات، مجانية بالكامل!" 
+    : "🧮 Try ZY calcO 1.2 — Free Multi-Purpose Calculator!";
+  if (navigator.share) {
+    navigator.share({title: "ZY calcO 1.2", text: shareText, url: appUrl}).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareText + "\n" + appUrl).then(() => {
+      showToast(getToastText('shared'));
+    });
+  }
+}
+
+async function convertCurrency() {
+  let resultDiv = document.getElementById("currencyResult");
+  let amount = parseFloat(document.getElementById("amount").value);
+  let from = document.getElementById("fromCurrency").value;
+  let to = document.getElementById("toCurrency").value;
+  if (isNaN(amount) || amount <= 0) {
+    resultDiv.style.color = "#ef4444";
+    resultDiv.innerText = lang === "ar" ? "⚠️ أدخل مبلغ صحيح" : "⚠️ Enter valid amount";
+    return;
+  }
+  if (from === to) {
+    resultDiv.style.color = "#22c55e";
+    resultDiv.innerText = amount + " " + from + " = " + amount + " " + to;
+    return;
+  }
+  resultDiv.style.color = "#fbbf24";
+  resultDiv.innerText = lang === "ar" ? "⏳ جاري الحساب..." : "⏳ Calculating...";
+  try {
+    const res = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+    const data = await res.json();
+    if (!data.rates || !data.rates[to]) throw new Error("Rate not found");
+    const rate = data.rates[to];
+    const result = (amount * rate).toFixed(4);
+    resultDiv.style.color = "#22c55e";
+    resultDiv.innerText = amount + ' ' + from + ' = ' + toLocalNumbers(result) + ' ' + to;
+    playSound('equal');
+    addHistoryItem('💱 ' + amount + ' ' + from + ' = ' + result + ' ' + to);
+  } catch (e) {
+    resultDiv.style.color = "#ef4444";
+    resultDiv.innerText = lang === "ar" ? "⚠️ تعذر جلب السعر." : "⚠️ Could not fetch rate.";
+  }
+}
+
+async function updateRatesOnCurrencyChange() {
+  const from = document.getElementById("fromCurrency").value;
+  const to = document.getElementById("toCurrency").value;
+  const officialEl = document.getElementById("officialRateDisplay");
+  const marketEl = document.getElementById("marketRateDisplay");
+  const flag = { USD:"🇺🇸", EUR:"🇪🇺", GBP:"🇬🇧", JPY:"🇯🇵", TRY:"🇹🇷", SAR:"🇸🇦", AED:"🇦🇪", KWD:"🇰🇼", QAR:"🇶🇦", IQD:"🇮🇶", EGP:"🇪🇬", JOD:"🇯🇴", BHD:"🇧🇭", OMR:"🇴🇲", MAD:"🇲🇦", DZD:"🇩🇿", TND:"🇹🇳", LYD:"🇱🇾", SDG:"🇸🇩", SYP:"🇸🇾", LBP:"🇱🇧" };
+  officialEl.innerText = "🏛️ " + (lang === "ar" ? "جاري التحميل..." : "Loading...");
+  marketEl.innerText = "🏪 " + (lang === "ar" ? "جاري التحميل..." : "Loading...");
+  if (from === to) {
+    officialEl.innerText = "🏛️ " + flag[from] + " 1 " + from + " = 1 " + to + " " + flag[to];
+    marketEl.innerText = "🏪 " + flag[from] + " 1 " + from + " = 1 " + to + " " + flag[to];
+    return;
+  }
+  try {
+    const res = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+    const data = await res.json();
+    if (!data.rates || !data.rates[to]) throw new Error("Rate not found");
+    const rate = data.rates[to];
+    officialEl.innerText = "🏛️ " + (lang === "ar" ? "الرسمي" : "Official") + ": " + flag[from] + " 1 " + from + " = " + toLocalNumbers(rate.toFixed(4)) + " " + to + " " + flag[to];
+    marketEl.innerText = "🏪 " + (lang === "ar" ? "السوق" : "Market") + ": " + flag[from] + " 1 " + from + " = " + toLocalNumbers(rate.toFixed(4)) + " " + to + " " + flag[to];
+  } catch(e) {
+    officialEl.innerText = "🏛️ " + flag[from] + " 1 " + from + " = — " + flag[to];
+    marketEl.innerText = "🏪 " + flag[from] + " 1 " + from + " = — " + flag[to];
+  }
+}
+
+function calculateHealth(){let w=parseFloat(document.getElementById("weight").value);let h=parseFloat(document.getElementById("height").value)/100;let age=parseFloat(document.getElementById("healthAge").value);let resDiv=document.getElementById("healthResult");let ageResDiv=document.getElementById("healthAgeResult");let idealDiv=document.getElementById("healthIdeal");let graphContainer=document.getElementById("bmiGraphContainer");if(!w||!h||h<=0||w<=0){resDiv.style.color="#ef4444";resDiv.innerText=lang==="ar"?"⚠️ أدخل قيم صحيحة":"⚠️ Enter valid values";return}let bmi=(w/(h*h));let status="",color="",position=0;if(bmi<18.5){status=t('underweight');color="#3b82f6";position=10}else if(bmi<25){status=t('normal');color="#22c55e";position=35}else if(bmi<30){status=t('overweight');color="#facc15";position=60}else{status=t('obese');color="#ef4444";position=85}resDiv.innerText='BMI = '+bmi.toFixed(1)+' ('+status+')';resDiv.style.color=color;graphContainer.style.display='block';let indicator=document.getElementById('bmiIndicator');indicator.style.left=Math.min(Math.max(position,2),98)+'%';indicator.style.background=color;let idealMin=18.5*h*h;let idealMax=24.9*h*h;idealDiv.innerText=t('idealWeight')+': '+idealMin.toFixed(1)+' - '+idealMax.toFixed(1)+' kg';if(age&&!isNaN(age)){let ageCat="";if(age<13)ageCat=t('child');else if(age<20)ageCat=t('teen');else if(age<60)ageCat=t('adult');else ageCat=t('senior');ageResDiv.innerText=t('ageCategory')+': '+ageCat+' ('+age+')'}else ageResDiv.innerText="";addHistoryItem('⚖️ BMI = '+bmi.toFixed(1)+' ('+status+')')}
+
+function convertTemperature(){let val=parseFloat(document.getElementById("tempInput").value);let from=document.getElementById("fromTemp").value;let to=document.getElementById("toTemp").value;let resDiv=document.getElementById("tempResult");if(isNaN(val))return;let c;if(from==="C")c=val;else if(from==="F")c=(val-32)*5/9;else if(from==="K")c=val-273.15;let finalOutput;if(to==="C")finalOutput=c.toFixed(2)+" °C";else if(to==="F")finalOutput=(c*9/5+32).toFixed(2)+" °F";else if(to==="K")finalOutput=(c+273.15).toFixed(2)+" K";resDiv.innerText=finalOutput;addHistoryItem('🌡️ '+val+'°'+from+' → '+finalOutput)}
+
+function calculateAge(){let birthInput=document.getElementById("birthDate").value;let resDiv=document.getElementById("ageResult");if(!birthInput)return;let birth=new Date(birthInput);let now=new Date();let years=now.getFullYear()-birth.getFullYear();let months=now.getMonth()-birth.getMonth();let days=now.getDate()-birth.getDate();if(days<0){months--;days+=new Date(now.getFullYear(),now.getMonth(),0).getDate()}if(months<0){years--;months+=12}let msg=lang==="ar"?('العمر: '+years+' سنة، '+months+' شهر، '+days+' يوم'):('Age: '+years+' years, '+months+' months, '+days+' days');resDiv.innerText=msg;addHistoryItem('📅 '+msg)}
+
+function calculatePercent(){let val=parseFloat(document.getElementById("percentValue").value);let total=parseFloat(document.getElementById("percentTotal").value);let resDiv=document.getElementById("percentResult");if(isNaN(val)||isNaN(total)||total===0)return;let percent=(val/total*100).toFixed(2);resDiv.innerText=val+' = '+percent+'%';addHistoryItem('% '+val+'/'+total+' = '+percent+'%')}
+function calculatePercentChange(){let from=parseFloat(document.getElementById("percentFrom").value);let change=parseFloat(document.getElementById("percentChange").value);let resDiv=document.getElementById("percentChangeResult");if(isNaN(from)||isNaN(change))return;let result=from+(from*change/100);resDiv.innerText=from+' + '+change+'% = '+result.toFixed(2);addHistoryItem('% '+from+' + '+change+'% = '+result.toFixed(2))}
+
+function calculateDiscount(){let price=parseFloat(document.getElementById("discountPrice").value);let percent=parseFloat(document.getElementById("discountPercent").value);let resDiv=document.getElementById("discountResult");if(isNaN(price)||isNaN(percent))return;let discount=price*percent/100;let final=price-discount;resDiv.innerHTML='الخصم: '+discount.toFixed(2)+'<br>السعر النهائي: '+final.toFixed(2);addHistoryItem('🏷️ خصم '+percent+'% على '+price+' = '+final.toFixed(2))}
+
+function convertSpeed(){let val=parseFloat(document.getElementById("speedInput").value);let from=document.getElementById("fromSpeed").value;let to=document.getElementById("toSpeed").value;let resDiv=document.getElementById("speedResult");if(isNaN(val))return;let kmh;if(from==="kmh")kmh=val;else if(from==="mph")kmh=val*1.60934;else if(from==="ms")kmh=val*3.6;let result;if(to==="kmh")result=kmh;else if(to==="mph")result=kmh/1.60934;else if(to==="ms")result=kmh/3.6;resDiv.innerText=result.toFixed(2)+' '+to;addHistoryItem('🚗 '+val+' '+from+' = '+result.toFixed(2)+' '+to)}
+
+const foodCalories={rice:130,bread:265,chicken:165,meat:250,fish:206,egg:155,milk:42,yogurt:59,banana:89,apple:52,orange:47,dates:277,almonds:579,potato:77,tomato:18,cucumber:15,oil:884,sugar:387,chocolate:546,burger:295,pizza:266,pasta:131,lentils:116,chickpeas:164,fries:312};
+const foodNames={ar:{rice:"أرز",bread:"خبز",chicken:"دجاج",meat:"لحم",fish:"سمك",egg:"بيض",milk:"حليب",yogurt:"زبادي",banana:"موز",apple:"تفاح",orange:"برتقال",dates:"تمر",almonds:"لوز",potato:"بطاطا",tomato:"طماطم",cucumber:"خيار",oil:"زيت زيتون",sugar:"سكر",chocolate:"شوكولاتة",burger:"برغر",pizza:"بيتزا",pasta:"معكرونة",lentils:"عدس",chickpeas:"حمص",fries:"بطاطا مقلية"},en:{rice:"Rice",bread:"Bread",chicken:"Chicken",meat:"Meat",fish:"Fish",egg:"Egg",milk:"Milk",yogurt:"Yogurt",banana:"Banana",apple:"Apple",orange:"Orange",dates:"Dates",almonds:"Almonds",potato:"Potato",tomato:"Tomato",cucumber:"Cucumber",oil:"Olive Oil",sugar:"Sugar",chocolate:"Chocolate",burger:"Burger",pizza:"Pizza",pasta:"Pasta",lentils:"Lentils",chickpeas:"Chickpeas",fries:"Fries"}};
+function getFoodName(key){const l=(lang&&foodNames[lang])?lang:'en';return foodNames[l][key]||foodNames['en'][key]||key}
+
+function calculateCalories(){
+  const weight=parseFloat(document.getElementById("foodWeight").value);
+  const foodType=document.getElementById("foodType").value;
+  const resDiv=document.getElementById("energyResult");
+  if(isNaN(weight)||weight<=0){resDiv.style.color="#ef4444";resDiv.innerText=lang==="ar"?"⚠️ أدخل وزن صحيح":"⚠️ Enter valid weight";return}
+  const caloriesPer100=foodCalories[foodType];
+  const totalCalories=(weight*caloriesPer100/100).toFixed(1);
+  const foodName=getFoodName(foodType);
+  resDiv.style.color="#f97316";
+  resDiv.innerHTML='🔥 '+foodName+': <strong>'+toLocalNumbers(totalCalories)+'</strong> '+(lang==="ar"?"سعرة حرارية":"calories");
+  playSound('equal');
+  addHistoryItem('🔥 '+foodName+' ('+weight+'غ) = '+totalCalories+' سعرة');
+}
+
+function calculateDailyCalories(){
+  const weight=parseFloat(document.getElementById("calWeight").value);
+  const height=parseFloat(document.getElementById("calHeight").value);
+  const age=parseFloat(document.getElementById("calAge").value);
+  const gender=document.getElementById("calGender").value;
+  const activity=parseFloat(document.getElementById("calActivity").value);
+  const resDiv=document.getElementById("dailyCalResult");
+  if(isNaN(weight)||isNaN(height)||isNaN(age)){resDiv.style.color="#ef4444";resDiv.innerText=lang==="ar"?"⚠️ أدخل القيم كاملة":"⚠️ Enter all values";return}
+  let bmr;
+  if(gender==="male")bmr=10*weight+6.25*height-5*age+5;
+  else bmr=10*weight+6.25*height-5*age-161;
+  const tdee=bmr*activity;
+  const loss=tdee-500;
+  const gain=tdee+500;
+  resDiv.style.color="#10b981";
+  resDiv.innerHTML=
+    '🔥 BMR: <strong>'+toLocalNumbers(bmr.toFixed(0))+'</strong> '+(lang==="ar"?"سعرة/يوم":"cal/day")+'<br>'+
+    '⚡ '+(lang==="ar"?"احتياجك اليومي":"Your TDEE")+': <strong>'+toLocalNumbers(tdee.toFixed(0))+'</strong><br>'+
+    '📉 '+(lang==="ar"?"لإنقاص الوزن":"Lose")+': '+toLocalNumbers(loss.toFixed(0))+'<br>'+
+    '📈 '+(lang==="ar"?"لزيادة الوزن":"Gain")+': '+toLocalNumbers(gain.toFixed(0));
+  playSound('equal');
+  addHistoryItem('🔥 BMR: '+bmr.toFixed(0)+' | TDEE: '+tdee.toFixed(0));
+}
+
+function convertData(){let val=parseFloat(document.getElementById("dataInput").value);let from=document.getElementById("fromData").value;let to=document.getElementById("toData").value;let resDiv=document.getElementById("dataResult");if(isNaN(val))return;let mb;if(from==="gb")mb=val*1024;else if(from==="mb")mb=val;else if(from==="kb")mb=val/1024;else if(from==="tb")mb=val*1024*1024;let result;if(to==="gb")result=mb/1024;else if(to==="mb")result=mb;else if(to==="kb")result=mb*1024;else if(to==="tb")result=mb/(1024*1024);resDiv.innerText=result.toFixed(4)+' '+to;addHistoryItem('💾 '+val+' '+from+' = '+result.toFixed(4)+' '+to)}
+
+function calculateFuel(){let distance=parseFloat(document.getElementById("fuelDistance").value);let consumption=parseFloat(document.getElementById("fuelConsumption").value);let price=parseFloat(document.getElementById("fuelPrice").value);let resDiv=document.getElementById("fuelResult");if(isNaN(distance)||isNaN(consumption))return;let liters=distance*consumption/100;let cost=liters*price;resDiv.innerHTML='اللترات: '+liters.toFixed(2)+'<br>التكلفة: '+cost.toFixed(2);addHistoryItem('⛽ وقود '+distance+'كم = '+liters.toFixed(2)+'ل')}
+
+function formatTime(sec){let h=Math.floor(sec/3600);let m=Math.floor((sec%3600)/60);let s=Math.floor(sec%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+function updateTimerDisplay(){document.getElementById("timerDisplay").innerText=formatTime(timerSeconds)}
+function startTimer(){if(timerRunning)return;timerRunning=true;timerInterval=setInterval(()=>{timerSeconds++;updateTimerDisplay()},1000)}
+function timerPause(){timerRunning=false;clearInterval(timerInterval)}
+function timerReset(){timerRunning=false;clearInterval(timerInterval);timerSeconds=0;updateTimerDisplay()}
+
+function toggleFullscreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{})}
+function toggleScientific(){sciVisible=!sciVisible;const sciDiv=document.getElementById("sciButtons");const btn=document.getElementById("toolsToggleBtn");sciDiv.style.display=sciVisible?"grid":"none";btn.innerText=sciVisible?t('toolsToggleClose'):t('toolsToggle')}
+function clearScreen(){currentExpression="";document.getElementById("screen").value="0";playSound('clear')}
+function copyResult(){const screen=document.getElementById("screen");let textToCopy=toEnglishNumbers(screen.value);if(!textToCopy||textToCopy.includes("⚠️"))return;navigator.clipboard.writeText(textToCopy).then(()=>{const btn=document.getElementById("copyResultBtn");btn.innerText=t('copied');btn.classList.add("copied");showToast(getToastText('copied'));setTimeout(()=>{btn.innerText=t('copyResult');btn.classList.remove("copied")},1500)})}
+function toggleSidebar(){document.getElementById("historySidebar").classList.toggle("open");document.getElementById("sidebarOverlay").classList.toggle("active")}
+
+function getCurrentTime(){const now=new Date();return now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')}
+
+function addHistoryItem(historyText, expr){
+  const list = document.getElementById("historyListSidebar");
+  if (!list) return;
+  if (list.children.length >= 50) list.removeChild(list.lastChild);
+  const li = document.createElement("li");
+  li.className = "history-item-sidebar";
+  const timeDiv = document.createElement("div");
+  timeDiv.className = "history-time";
+  timeDiv.innerText = "🕐 " + getCurrentTime();
+  li.appendChild(timeDiv);
+  const exprDiv = document.createElement("div");
+  exprDiv.className = "history-expr";
+  exprDiv.innerText = historyText;
+  exprDiv.contentEditable = "true";
+  exprDiv.spellcheck = false;
+  exprDiv.onblur = () => { saveHistoryToStorage(); showToast(getToastText('saved')); };
+  exprDiv.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); exprDiv.blur(); } };
+  li.appendChild(exprDiv);
+  const noteDiv = document.createElement("div");
+  noteDiv.className = "history-note";
+  noteDiv.style.display = "none";
+  li.appendChild(noteDiv);
+  const actions = document.createElement("div");
+  actions.className = "history-item-actions";
+  if (expr) {
+    const useBtn = document.createElement("button");
+    useBtn.className = "use-btn";
+    useBtn.innerText = t('useBtn');
+    useBtn.onclick = (e) => { e.stopPropagation(); useHistoryItem(expr); };
+    actions.appendChild(useBtn);
+  }
+  const noteBtn = document.createElement("button");
+  noteBtn.className = "note-btn";
+  noteBtn.innerText = t('noteBtn');
+  noteBtn.onclick = (e) => { e.stopPropagation(); openNoteModal(li); };
+  actions.appendChild(noteBtn);
+  const delBtn = document.createElement("button");
+  delBtn.className = "delete-btn";
+  delBtn.innerText = "🗑️";
+  delBtn.onclick = (e) => { e.stopPropagation(); li.remove(); updateBadge(); saveHistoryToStorage(); };
+  actions.appendChild(delBtn);
+  li.appendChild(actions);
+  list.insertBefore(li, list.firstChild);
+  updateBadge();
+  saveHistoryToStorage();
+}
+
+function useHistoryItem(expr){let current=toEnglishNumbers(expr);if(current.includes("=")){const idx=current.lastIndexOf("=");current=current.substring(0,idx).trim()}currentExpression=current;document.getElementById("screen").value=toLocalNumbers(current);document.getElementById("screen").style.fontSize="2rem";document.getElementById("screen").style.color="";if(document.getElementById("historySidebar").classList.contains("open"))toggleSidebar()}
+function openNoteModal(li){editingHistoryLi=li;const noteDiv=li.querySelector(".history-note");const existingNote=noteDiv&&noteDiv.style.display!=="none"?noteDiv.innerText.replace("📝 ",""):"";document.getElementById("noteInput").value=existingNote;document.getElementById("noteModal").classList.add("active");document.getElementById("noteInput").focus()}
+function closeNoteModal(){document.getElementById("noteModal").classList.remove("active");editingHistoryLi=null}
+function saveNote(){if(!editingHistoryLi)return;const noteDiv=editingHistoryLi.querySelector(".history-note");if(!noteDiv)return;const note=document.getElementById("noteInput").value.trim();if(note){noteDiv.innerText="📝 "+note;noteDiv.style.display="block"}else{noteDiv.innerText="";noteDiv.style.display="none"}saveHistoryToStorage();closeNoteModal()}
+function clearHistory(){if(!confirm(lang==="ar"?"هل أنت متأكد من مسح كل السجل؟":"Are you sure you want to clear all history?"))return;document.getElementById("historyListSidebar").innerHTML="";historyMemory=[];try{localStorage.removeItem("calcHistory")}catch(e){}updateBadge();showToast(getToastText('cleared'))}
+function exportHistory(){const items=[];document.querySelectorAll("#historyListSidebar .history-item-sidebar").forEach(li=>{const time=li.querySelector(".history-time")?.innerText||"";const expr=li.querySelector(".history-expr")?.innerText||"";const note=li.querySelector(".history-note")?.innerText||"";items.push(time+'\n'+expr+'\n'+note+'\n---')});const txt=items.join("\n\n");navigator.clipboard.writeText(txt).then(()=>{showToast(getToastText('exported'))})}
+function updateBadge(){const count=document.querySelectorAll("#historyListSidebar .history-item-sidebar").length;document.getElementById("historyBadge").innerText=count}
+
+function saveHistoryToStorage(){
+  const items=[];
+  document.querySelectorAll("#historyListSidebar .history-item-sidebar").forEach(li=>{
+    const time=li.querySelector(".history-time")?.innerText||"";
+    const expr=li.querySelector(".history-expr")?.innerText||"";
+    const noteEl=li.querySelector(".history-note");
+    const note=noteEl&&noteEl.style.display!=="none"?noteEl.innerText:"";
+    items.push({time,expr,note});
+  });
+  historyMemory=items;
+  try{localStorage.setItem("calcHistory",JSON.stringify(items))}catch(e){}
+}
+
+function loadHistoryFromStorage(){
+  let items=[];
+  try{const saved=localStorage.getItem("calcHistory");if(saved){items=JSON.parse(saved)}}catch(e){}
+  if(items.length===0&&historyMemory.length>0){items=historyMemory}
+  if(items.length>0){
+    const list=document.getElementById("historyListSidebar");
+    list.innerHTML="";
+    items.forEach(item=>{
+      const li=document.createElement("li");
+      li.className="history-item-sidebar";
+      const timeDiv=document.createElement("div");
+      timeDiv.className="history-time";
+      timeDiv.innerText=item.time||"";
+      li.appendChild(timeDiv);
+      const exprDiv=document.createElement("div");
+      exprDiv.className="history-expr";
+      exprDiv.innerText=item.expr||"";
+      exprDiv.contentEditable="true";
+      exprDiv.spellcheck=false;
+      exprDiv.onblur=()=>{saveHistoryToStorage()};
+      exprDiv.onkeydown=(e)=>{if(e.key==='Enter'){e.preventDefault();exprDiv.blur()}};
+      li.appendChild(exprDiv);
+      const noteDiv=document.createElement("div");
+      noteDiv.className="history-note";
+      if(item.note){noteDiv.innerText=item.note;noteDiv.style.display="block"}else noteDiv.style.display="none";
+      li.appendChild(noteDiv);
+      const actions=document.createElement("div");
+      actions.className="history-item-actions";
+      let expr=item.expr||"";
+      if(expr.includes("="))expr=expr.split("=")[0].trim();
+      if(expr&&!expr.includes("⚠️")&&!expr.includes("💱")){
+        const useBtn=document.createElement("button");
+        useBtn.className="use-btn";
+        useBtn.innerText=t('useBtn');
+        useBtn.onclick=(e)=>{e.stopPropagation();useHistoryItem(expr)};
+        actions.appendChild(useBtn);
+      }
+      const noteBtn=document.createElement("button");
+      noteBtn.className="note-btn";
+      noteBtn.innerText=t('noteBtn');
+      noteBtn.onclick=(e)=>{e.stopPropagation();openNoteModal(li)};
+      actions.appendChild(noteBtn);
+      const delBtn=document.createElement("button");
+      delBtn.className="delete-btn";
+      delBtn.innerText="🗑️";
+      delBtn.onclick=(e)=>{e.stopPropagation();li.remove();updateBadge();saveHistoryToStorage()};
+      actions.appendChild(delBtn);
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
+    updateBadge();
+  }
+}
+
+function changeLanguage(){
+  lang=document.getElementById("language").value;
+  document.getElementById("title").innerText=t('title');
+  document.getElementById("currencyTitle").innerText=t('currency');
+  document.getElementById("healthTitle").innerText=t('health');
+  document.getElementById("tempTitle").innerText=t('temp');
+  document.getElementById("ageTitle").innerText=t('age');
+  document.getElementById("percentTitle").innerText=t('percent');
+  document.getElementById("percentChangeTitle").innerText=t('percentChange');
+  document.getElementById("timerTitle").innerText=t('timer');
+  document.getElementById("sidebarTitle").innerText=t('history');
+  document.getElementById("btnConvert").innerText=t('btnConvert');
+  document.getElementById("btnHealth").innerText=t('btnHealth');
+  document.getElementById("btnTemp").innerText=t('btnTemp');
+  document.getElementById("btnAge").innerText=t('btnAge');
+  document.getElementById("btnPercent").innerText=t('btnPercent');
+  document.getElementById("btnPercentChange").innerText=t('btnPercentChange');
+  document.getElementById("btnDiscount").innerText=t('btnDiscount');
+  document.getElementById("btnSpeed").innerText=t('btnSpeed');
+  document.getElementById("btnEnergy").innerText=t('btnEnergy');
+  document.getElementById("btnData").innerText=t('btnData');
+  document.getElementById("btnFuel").innerText=t('btnFuel');
+  document.getElementById("clearHistoryBtn").innerText=t('clearHistory');
+  document.getElementById("historyToggleText").innerText=t('toggleHistory');
+  document.getElementById("copyResultBtn").innerText=t('copyResult');
+  document.getElementById("toolsToggleBtn").innerText=sciVisible?t('toolsToggleClose'):t('toolsToggle');
+  document.getElementById("ratingBtn").innerText=t('ratingBtn');
+  document.getElementById("shareBtn").innerText=t('shareBtn');
+  document.getElementById("noteModalTitle").innerText=t('noteTitle');
+  document.getElementById("saveNoteBtn").innerText=t('saveNote');
+  document.getElementById("cancelNoteBtn").innerText=t('cancelNote');
+  document.getElementById("timerStart").innerText=t('timerStart');
+  document.getElementById("timerPause").innerText=t('timerPause');
+  document.getElementById("timerReset").innerText=t('timerReset');
+  document.getElementById("bmiLabel1").innerText=t('bmiLabel1');
+  document.getElementById("bmiLabel2").innerText=t('bmiLabel2');
+  document.getElementById("bmiLabel3").innerText=t('bmiLabel3');
+  document.getElementById("bmiLabel4").innerText=t('bmiLabel4');
+  document.getElementById("discountTitle").innerText=t('discountTitle');
+  document.getElementById("speedTitle").innerText=t('speedTitle');
+  document.getElementById("energyTitle").innerText=t('energyTitle');
+  document.getElementById("dataTitle").innerText=t('dataTitle');
+  document.getElementById("fuelTitle").innerText=t('fuelTitle');
+  
+  document.querySelectorAll('[data-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-placeholder');
+    if (text[lang] && text[lang][key]) {
+      el.placeholder = text[lang][key];
+    } else if (text['en'][key]) {
+      el.placeholder = text['en'][key];
+    }
+  });
+  
+  updateSelects();
+  
+  if (lang === "ar" || lang === "ku") {
+    numSystem = "arabic";
+  } else {
+    numSystem = "english";
+  }
+  const numLabels = { arabic: '🔢 ٠١٢', hindi: '🔢 012', english: '🔢 123' };
+  document.getElementById("numToggle").innerText = numLabels[numSystem];
+  
+  if(lang==="ar"||lang==="ku")document.documentElement.dir="rtl";else document.documentElement.dir="ltr";
+  updateButtonNumbers();
+  const screen=document.getElementById("screen");
+  if(currentExpression&&currentExpression.trim()!==""){screen.value=toLocalNumbers(currentExpression)}else{screen.value="0"}
+  updateHistoryNumbers();
+  updateRatesOnCurrencyChange();
+  try{localStorage.setItem("calcLang",lang)}catch(e){}
+}
+
+function updateButtonNumbers(){document.querySelectorAll('button[data-num]').forEach(btn=>{const num=btn.getAttribute('data-num');btn.innerText=toLocalNumbers(num)})}
+function updateHistoryNumbers(){document.querySelectorAll("#historyListSidebar .history-expr").forEach(el=>{const engText=toEnglishNumbers(el.innerText);el.innerText=toLocalNumbers(engText)})}
+function toggleTheme(){const body=document.body;const icon=document.getElementById("themeIcon");icon.classList.add("spin");setTimeout(()=>icon.classList.remove("spin"),500);body.classList.toggle("light-mode");if(body.classList.contains("light-mode")){icon.innerText="☀️";try{localStorage.setItem("theme","light")}catch(e){};showToast(lang==="ar"?"☀️ الوضع الفاتح":"☀️ Light Mode")}else{icon.innerText="🌙";try{localStorage.setItem("theme","dark")}catch(e){};showToast(lang==="ar"?"🌙 الوضع المظلم":"🌙 Dark Mode")}}
+
+window.onload=function(){
+  loadHistoryFromStorage();
+  let savedLang="ar";
+  try{savedLang=localStorage.getItem("calcLang")||"ar"}catch(e){}
+  if(savedLang&&text[savedLang]){lang=savedLang;document.getElementById("language").value=lang}
+  let savedTheme=null;
+  try{savedTheme=localStorage.getItem("theme")}catch(e){}
+  const prefersLight=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches;
+  if(savedTheme==="light"||(!savedTheme&&prefersLight)){document.body.classList.add("light-mode");document.getElementById("themeIcon").innerText="☀️"}
+  if(!soundEnabled){document.getElementById("soundIcon").innerText="🔇";document.getElementById("soundToggle").classList.add("muted")}
+  updateTimerDisplay();
+  updateButtonNumbers();
+  currentExpression="";
+  changeLanguage();
+  document.getElementById("fromCurrency").addEventListener("change",updateRatesOnCurrencyChange);
+  document.getElementById("toCurrency").addEventListener("change",updateRatesOnCurrencyChange);
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{
+      if(!localStorage.getItem("theme")){
+        document.body.classList.toggle("light-mode",!e.matches);
+        document.getElementById("themeIcon").innerText=e.matches?"🌙":"☀️";
+      }
+    });
+  }
+  const inputIds=['amount','weight','height','healthAge','tempInput','percentValue','percentTotal','percentFrom','percentChange','discountPrice','discountPercent','speedInput','foodWeight','calWeight','calHeight','calAge','dataInput','fuelDistance','fuelConsumption','fuelPrice'];
+  inputIds.forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleEnterInPanel(this)}})}});
+  const selectIds=['fromCurrency','toCurrency','fromTemp','toTemp','fromSpeed','toSpeed','fromData','toData'];
+  selectIds.forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleEnterInPanel(this)}})}});
+  const birthEl=document.getElementById('birthDate');
+  if(birthEl){birthEl.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();calculateAge()}})}
+  document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='h'){e.preventDefault();toggleSidebar()}});
+  console.log("ZY calcO 1.2 initialized");
+};
+</script>
+</body>
+</html>
